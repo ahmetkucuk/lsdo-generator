@@ -1,5 +1,8 @@
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+package app.downloader;
+
+import app.Event;
+import app.utils.Constants;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -7,7 +10,7 @@ import java.net.URL;
 /**
  * Created by ahmetkucuk on 27/09/15.
  */
-public class Downloader {
+public class JP2Downloader {
 
     public static final String SEPARATOR = "\t";
 
@@ -26,11 +29,12 @@ public class Downloader {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));) {
 
             String line = reader.readLine();
+            int eventTypeIndex = findIndexOfHeader(line, Constants.FieldNames.EVENT_TYPE);
             int dateIndex = findIndexOfHeader(line, Constants.FieldNames.ARCHIVE_DATE);
             int channelIdIndex = findIndexOfHeader(line, Constants.FieldNames.CHANNEL_ID);
 
 
-            int counter = 0;
+            int counter = 1;
             while((line = reader.readLine()) != null) {
 
                 if(counter >= limit)
@@ -47,15 +51,17 @@ public class Downloader {
 
                 String[] columnValues = line.split(SEPARATOR);
 
+                String eventType = columnValues[eventTypeIndex];
                 String date = columnValues[dateIndex] + "Z";
                 String measurement = columnValues[channelIdIndex];
 
                 String url = String.format(Constants.IMAGE_DOWNLOAD_URL, date, measurement);
-                String fileName = "sample_" + counter + "_date_" + date + "_cid_" + measurement + ".jp2";
+                String fileName = eventType + "_" + counter + "_date_" + date.replace('/', '-') + "_cid_" + measurement + ".jp2";
                 System.out.println("Download started for URL: " + url);
                 downloadImage(url, fileLocation, fileName);
 
                 //Write name and bbox of this image into a file
+                //writer.write();
 
                 System.out.println("Download finished for URL: " + url);
                 System.out.println("Image saved to " + fileLocation);
