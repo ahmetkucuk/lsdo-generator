@@ -1,8 +1,8 @@
-package app;
+package app.models;
 
-import app.polygon.Coordinate;
-import app.utils.EventType;
 import app.utils.Utilities;
+
+import java.util.Arrays;
 
 /**
  * Created by ahmetkucuk on 01/10/15.
@@ -14,6 +14,7 @@ public class Event {
     private String imageFileString;
     private Coordinate[] coordinates;
     private String date;
+    private String measurement;
 
     public String getDate() {
         return date;
@@ -43,6 +44,14 @@ public class Event {
         this.eventType = eventType;
     }
 
+    public String getMeasurement() {
+        return measurement;
+    }
+
+    public void setMeasurement(String measurement) {
+        this.measurement = measurement;
+    }
+
     public String getCoordinateString() {
         return coordinateString;
     }
@@ -62,4 +71,15 @@ public class Event {
         return coordinates;
     }
 
+    @Override
+    public String toString() {
+        return "Event{" +
+                "eventType=" + eventType +
+                ", coordinateString='" + coordinateString + '\'' +
+                ", imageFileString='" + imageFileString + '\'' +
+                ", coordinates=" + Arrays.toString(coordinates) +
+                ", date='" + date + '\'' +
+                ", measurement='" + measurement + '\'' +
+                '}';
+    }
 }

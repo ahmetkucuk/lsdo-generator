@@ -1,4 +1,6 @@
-package app.utils;
+package app.models;
+
+import app.utils.Constants;
 
 /**
  * Created by ahmetkucuk on 01/10/15.

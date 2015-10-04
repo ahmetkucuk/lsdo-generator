@@ -1,4 +1,4 @@
-package app.polygon;
+package app.models;
 
 /**
  * Created by ahmetkucuk on 01/10/15.

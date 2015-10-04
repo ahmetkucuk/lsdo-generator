@@ -1,7 +1,8 @@
 package app.downloader;
 
-import app.Event;
+import app.models.Event;
 import app.utils.Constants;
+import app.utils.EventFileReader;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -24,21 +25,9 @@ public class JP2Downloader {
      */
     public void downloadFromInputFile(String inputFile, String fileLocation, int limit, int waitBetween) {
 
-        try(FileInputStream fStream1 = new FileInputStream(inputFile);
-        DataInputStream in = new DataInputStream(fStream1);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));) {
+        EventFileReader.init(inputFile);
 
-            String line = reader.readLine();
-            int eventTypeIndex = findIndexOfHeader(line, Constants.FieldNames.EVENT_TYPE);
-            int dateIndex = findIndexOfHeader(line, Constants.FieldNames.ARCHIVE_DATE);
-            int channelIdIndex = findIndexOfHeader(line, Constants.FieldNames.CHANNEL_ID);
-
-
-            int counter = 1;
-            while((line = reader.readLine()) != null) {
-
-                if(counter >= limit)
-                    break;
+        for(int i = 1; i <= limit; i++) {
 
 //                try {
 //
@@ -48,30 +37,20 @@ public class JP2Downloader {
 //                    e.printStackTrace();
 //                }
 
+            Event e = EventFileReader.getInstance().next();
 
-                String[] columnValues = line.split(SEPARATOR);
+            String url = String.format(Constants.IMAGE_DOWNLOAD_URL, e.getDate() + "Z", e.getMeasurement());
+            String fileName = e.getEventType().toString() + "_" + i + ".jp2";
+            System.out.println("Download started for URL: " + url);
 
-                String eventType = columnValues[eventTypeIndex];
-                String date = columnValues[dateIndex] + "Z";
-                String measurement = columnValues[channelIdIndex];
-
-                String url = String.format(Constants.IMAGE_DOWNLOAD_URL, date, measurement);
-                String fileName = eventType + "_" + counter + "_date_" + date.replace('/', '-') + "_cid_" + measurement + ".jp2";
-                System.out.println("Download started for URL: " + url);
+            try {
                 downloadImage(url, fileLocation, fileName);
-
-                //Write name and bbox of this image into a file
-                //writer.write();
-
                 System.out.println("Download finished for URL: " + url);
                 System.out.println("Image saved to " + fileLocation);
-                counter++;
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-
     }
 
     public int findIndexOfHeader(String record, String columnName) {

@@ -1,5 +1,9 @@
 package app.polygon;
 
+import app.models.Coordinate;
+import app.models.Event;
+import app.utils.EventFileReader;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -13,11 +17,21 @@ import java.io.IOException;
 public class DrawPolygonOnImage {
 
 
+    public void draw(String inputFile, String imageFileDirectory, int limit, String targetFileExtension) {
+        EventFileReader.init(inputFile);
+        for(int i = 1; i <= limit; i++) {
+            Event e = EventFileReader.getInstance().next();
+            e.setImageFileString(imageFileDirectory + e.getEventType().toString() + "_" + i + ".jpg");
+            drawPolygon(e, targetFileExtension);
+        }
+    }
+
+
     /**
      *
      *
      */
-    public void drawPolygon(app.Event event) {
+    public void drawPolygon(Event event, String targetFileExtension) {
         BufferedImage img = null;
         try {
             img = ImageIO.read(new FileInputStream(new File(event.getImageFileString())));
@@ -26,7 +40,7 @@ public class DrawPolygonOnImage {
             g2d.setPaint(Color.BLUE);
             g2d.setStroke(new BasicStroke(10f));
             g2d.drawPolygon(p);
-            ImageIO.write(img, "png", new File(event.getImageFilePNGString()));
+            ImageIO.write(img, targetFileExtension, new File(event.getImageFilePNGString()));
 
         } catch (IOException e) {
             e.printStackTrace();
