@@ -3,6 +3,7 @@ package app;
 import app.downloader.JP2Downloader;
 import app.polygon.DrawPolygonOnImage;
 import app.utils.Constants;
+import app.utils.Utilities;
 
 /**
  * Created by ahmetkucuk on 27/09/15.
@@ -14,7 +15,10 @@ public class Runner {
 
     public static void main(String[] args) throws Exception {
 
-//        new JP2Downloader().downloadFromInputFile(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, 5, 0);
-        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, Constants.JPEG_IMAGE_FILE_LOCATION, 5, "png");
+//        System.out.println(Utilities.getDateFromString("2012-01-02T00:00:00"));
+//        new JP2Downloader().downloadFromInputFile(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, 5, 10);
+        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "S", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
+        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "M", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
+        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "E", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
     }
 }

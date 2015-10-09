@@ -15,7 +15,8 @@ public class EventFileReader {
     private static EventFileReader instance;
     private BufferedReader reader;
     private int eventTypeIndex;
-    private int dateIndex;
+    private int sdateIndex;
+    private int edateIndex;
     private int channelIdIndex;
     private int polygonIndex;
 
@@ -42,7 +43,8 @@ public class EventFileReader {
 
             String line = reader.readLine();
             eventTypeIndex = findIndexOfHeader(line, Constants.FieldNames.EVENT_TYPE);
-            dateIndex = findIndexOfHeader(line, Constants.FieldNames.ARCHIVE_DATE);
+            sdateIndex = findIndexOfHeader(line, Constants.FieldNames.START_DATE);
+            edateIndex = findIndexOfHeader(line, Constants.FieldNames.END_DATE);
             channelIdIndex = findIndexOfHeader(line, Constants.FieldNames.CHANNEL_ID);
             polygonIndex = findIndexOfHeader(line, Constants.FieldNames.POLYGON);
         } catch (FileNotFoundException e) {
@@ -58,7 +60,8 @@ public class EventFileReader {
             line = reader.readLine();
             String[] columnValues = line.split(SEPARATOR);
             Event e = new Event();
-            e.setDate(columnValues[dateIndex]);
+            e.setStartDateString(columnValues[sdateIndex]);
+            e.setEndDateString(columnValues[edateIndex]);
             e.setEventType(EventType.valueOf(columnValues[eventTypeIndex]));
             String polygonString = columnValues[polygonIndex];
             if(polygonString.contains("POLYGON")) {

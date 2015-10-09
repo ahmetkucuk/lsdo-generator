@@ -17,11 +17,11 @@ import java.io.IOException;
 public class DrawPolygonOnImage {
 
 
-    public void draw(String inputFile, String imageFileDirectory, int limit, String targetFileExtension) {
+    public void draw(String inputFile, String dateSpecification, String imageFileDirectory, int limit, String targetFileExtension) {
         EventFileReader.init(inputFile);
         for(int i = 1; i <= limit; i++) {
             Event e = EventFileReader.getInstance().next();
-            String imageFileName = e.getEventType().toString() + "_" + i + ".jpg";
+            String imageFileName = e.getEventType().toString() + "_" + dateSpecification + "_" + i + ".jpg";
             e.setImageFileString(imageFileDirectory + imageFileName);
             drawPolygon(e, targetFileExtension);
         }
@@ -41,7 +41,7 @@ public class DrawPolygonOnImage {
             g2d.setPaint(Color.white);
             g2d.setStroke(new BasicStroke(10f));
             g2d.drawPolygon(p);
-            ImageIO.write(img, targetFileExtension, new File(event.getImageFilePNGString()));
+            ImageIO.write(img, targetFileExtension, new File(event.getImageFileString()));
 
         } catch (IOException e) {
             e.printStackTrace();

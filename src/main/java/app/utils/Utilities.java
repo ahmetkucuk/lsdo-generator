@@ -6,6 +6,9 @@ import app.models.EventType;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by ahmetkucuk on 01/10/15.
@@ -26,6 +29,26 @@ public class Utilities {
         }
 
         return coordinates;
+    }
+
+    public static Date getDateFromString(String dateString) {
+
+        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD'T'HH:mm:ss");
+
+        try {
+            Date date = formatter.parse(dateString);
+            return date;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getStringFromDate(Date date) {
+
+        SimpleDateFormat formatter1 = new SimpleDateFormat("YYYY-MM-DD'T'HH:mm:ss'Z'");
+        //SimpleDateFormat formatter2 = new SimpleDateFormat("HH:MM:SS");
+        return formatter1.format(date);
     }
 
     public static String executeCommand(String[] cmd) {

@@ -3,6 +3,7 @@ package app.downloader;
 import app.models.Event;
 import app.utils.Constants;
 import app.utils.EventFileReader;
+import app.utils.Utilities;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -29,27 +30,41 @@ public class JP2Downloader {
 
         for(int i = 1; i <= limit; i++) {
 
-//                try {
-//
-//                    Thread.sleep(waitBetween * 1000);
-//
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+            try {
+
+                Thread.sleep(waitBetween * 1000);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             Event e = EventFileReader.getInstance().next();
 
-            String url = String.format(Constants.IMAGE_DOWNLOAD_URL, e.getDate() + "Z", e.getMeasurement());
-            String fileName = e.getEventType().toString() + "_" + i + ".jp2";
-            System.out.println("Download started for URL: " + url);
+
+            String urlStart = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(e.getStartDate()), e.getMeasurement());
+            String urlMiddle = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(e.getMiddleDate()), e.getMeasurement());
+            String urlEnd = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(e.getEndDate()), e.getMeasurement());
+
+            String fileNameStart = e.getEventType().toString() + "_S_" + i + ".jp2";
+            String fileNameMiddle = e.getEventType().toString() + "_M_" + i + ".jp2";
+            String fileNameEnd = e.getEventType().toString() + "_E_" + i + ".jp2";
+
+            System.out.println("Started for event: " +  e.toString());
+
+//            System.out.println(e.getStartDate());
+//            System.out.println(e.getEndDate());
+//            System.out.println(e.getMiddleDate());
+//            System.out.println(Utilities.getStringFromDate(e.getMiddleDate()));
 
             try {
-                downloadImage(url, fileLocation, fileName);
-                System.out.println("Download finished for URL: " + url);
-                System.out.println("Image saved to " + fileLocation);
+                downloadImage(urlStart, fileLocation, fileNameStart);
+                downloadImage(urlMiddle, fileLocation, fileNameMiddle);
+                downloadImage(urlEnd, fileLocation, fileNameEnd);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+
+            System.out.println("Finished for event: " +  e.toString());
         }
     }
 
