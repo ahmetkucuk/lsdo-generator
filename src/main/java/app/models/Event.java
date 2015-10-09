@@ -1,5 +1,6 @@
 package app.models;
 
+import app.utils.CoordinateSystemConverter;
 import app.utils.Utilities;
 
 import java.util.Arrays;
@@ -62,11 +63,19 @@ public class Event {
 
     public Coordinate[] getCoordinates() {
         if(coordinates == null) {
-            coordinates = Utilities.parseCoordinatesString(coordinateString);
-            for(Coordinate c: coordinates) {
-                c.setPixelX(Utilities.calculatePixelValues(eventType, c.getX()));
-                c.setPixelY(Utilities.calculatePixelValues(eventType, c.getY()));
+            if(coordinateString == null) {
+                System.err.println("Coordinate String is null");
+                return null;
             }
+            coordinates = Utilities.parseCoordinatesString(coordinateString);
+            Coordinate[] newCoordinates = new Coordinate[coordinates.length];
+
+            int i = 0;
+            for(Coordinate c: coordinates) {
+                newCoordinates[i] = CoordinateSystemConverter.convertHGSToPixXY(c);
+                i++;
+            }
+            coordinates = newCoordinates;
         }
         return coordinates;
     }

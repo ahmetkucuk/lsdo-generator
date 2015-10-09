@@ -1,5 +1,6 @@
 package app;
 
+import app.downloader.JP2Downloader;
 import app.polygon.DrawPolygonOnImage;
 import app.utils.Constants;
 

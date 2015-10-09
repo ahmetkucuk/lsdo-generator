@@ -28,10 +28,6 @@ public class Utilities {
         return coordinates;
     }
 
-    public static int calculatePixelValues(EventType eventType, double value) {
-        return (int)(((4096/2) + value) / eventType.getCDELT());
-    }
-
     public static String executeCommand(String[] cmd) {
 
         String s = null;

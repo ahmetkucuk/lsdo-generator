@@ -21,7 +21,8 @@ public class DrawPolygonOnImage {
         EventFileReader.init(inputFile);
         for(int i = 1; i <= limit; i++) {
             Event e = EventFileReader.getInstance().next();
-            e.setImageFileString(imageFileDirectory + e.getEventType().toString() + "_" + i + ".jpg");
+            String imageFileName = e.getEventType().toString() + "_" + i + ".jpg";
+            e.setImageFileString(imageFileDirectory + imageFileName);
             drawPolygon(e, targetFileExtension);
         }
     }
@@ -37,7 +38,7 @@ public class DrawPolygonOnImage {
             img = ImageIO.read(new FileInputStream(new File(event.getImageFileString())));
             Polygon p = createPolygon(event.getCoordinates());
             Graphics2D g2d = img.createGraphics();
-            g2d.setPaint(Color.BLUE);
+            g2d.setPaint(Color.white);
             g2d.setStroke(new BasicStroke(10f));
             g2d.drawPolygon(p);
             ImageIO.write(img, targetFileExtension, new File(event.getImageFilePNGString()));
@@ -53,8 +54,8 @@ public class DrawPolygonOnImage {
         int[] yCoordinates = new int[coordinates.length];
 
         for(int i = 0; i < coordinates.length; i++) {
-            xCoordinates[i] = coordinates[i].getPixelX();
-            yCoordinates[i] = coordinates[i].getPixelY();
+            xCoordinates[i] = (int)coordinates[i].getX();
+            yCoordinates[i] = (int)coordinates[i].getY();
             System.out.println(xCoordinates[i] + " " + yCoordinates[i]);
         }
 

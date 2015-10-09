@@ -37,4 +37,20 @@ public enum EventType {
         }
         return 0;
     }
+
+    public int getMeasurement() {
+        switch (this) {
+            case AR:
+                return Constants.Measurement.AR_ME;
+            case CH:
+                return Constants.Measurement.CH_ME;
+            case FL:
+                return Constants.Measurement.FL_ME;
+            case SG:
+                return Constants.Measurement.SG_ME;
+            case NONE:
+                return 0;
+        }
+        return 0;
+    }
 }

@@ -7,7 +7,7 @@ public class Constants {
 
     public static class FieldNames {
 
-        public static final String ARCHIVE_DATE = "kb_archivdate";
+        public static final String ARCHIVE_DATE = "event_starttime";
         public static final String CHANNEL_ID = "obs_channelid";
         public static final String POLYGON = "hgs_bbox";
         public static final String EVENT_TYPE = "event_type";
@@ -18,6 +18,13 @@ public class Constants {
         public static final double CH_CDELT = 0.599733;//Not sure about that
         public static final double FL_CDELT = 0.599733;
         public static final double SG_CDELT = 0.599733;
+    }
+
+    public static class Measurement {
+        public static final int AR_ME = 193;
+        public static final int CH_ME = 193;//Not sure about that
+        public static final int FL_ME = 131;
+        public static final int SG_ME = 131;
     }
 
     public static final String JP2_IMAGE_FILE_LOCATION = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/";
