@@ -8,7 +8,7 @@ import app.utils.Constants;
 public enum EventType {
     AR, CH, FL, SG, NONE;
 
-    public EventType fromString(String s) {
+    public static EventType fromString(String s) {
         switch (s) {
             case "AR":
                 return AR;

@@ -20,7 +20,13 @@ public class Event {
     private Date startDate;
     private Date endDate;
 
+    private int id;
+
     private String measurement;
+
+    public String getImageFileName(String dateSpecification) {
+        return getEventType().toString() + "_" + dateSpecification + "_" + getId() + ".jpg";
+    }
 
     public Date getMiddleDate() {
         if(startDate == null || endDate == null) {
@@ -54,7 +60,6 @@ public class Event {
 
     public void setStartDateString(String startDate) {
         this.startDateString = startDate;
-        this.startDate = Utilities.getDateFromString(startDate);
     }
 
     public String getEndDateString() {
@@ -63,7 +68,6 @@ public class Event {
 
     public void setEndDateString(String endDate) {
         this.endDateString = endDate;
-        this.endDate = Utilities.getDateFromString(endDate);
     }
 
     public String getImageFileString() {
@@ -119,6 +123,14 @@ public class Event {
             coordinates = newCoordinates;
         }
         return coordinates;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     @Override

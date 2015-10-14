@@ -1,7 +1,7 @@
 package app.utils;
 
 import app.models.Coordinate;
-import app.models.EventType;
+import app.models.Event;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,6 +49,23 @@ public class Utilities {
         SimpleDateFormat formatter1 = new SimpleDateFormat("YYYY-MM-DD'T'HH:mm:ss'Z'");
         //SimpleDateFormat formatter2 = new SimpleDateFormat("HH:MM:SS");
         return formatter1.format(date);
+    }
+
+    public static Event getEventByTime(String inputFile, String eventTime) throws ParseException {
+
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("DD/MM/YYYY HH:mm:ss");
+        Date date = dateFormatter.parse(eventTime);
+        System.out.println(date);
+        EventFileReader.init(inputFile);
+        Event event = null;
+        while((event = EventFileReader.getInstance().next()) != null) {
+            if(event.getStartDate().getTime() == date.getTime()) {
+                System.out.println("Time: " + event);
+                return event;
+            }
+        }
+
+        return null;
     }
 
     public static String executeCommand(String[] cmd) {

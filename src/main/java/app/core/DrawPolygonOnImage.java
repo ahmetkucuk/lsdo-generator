@@ -1,4 +1,4 @@
-package app.polygon;
+package app.core;
 
 import app.models.Coordinate;
 import app.models.Event;
@@ -17,13 +17,11 @@ import java.io.IOException;
 public class DrawPolygonOnImage {
 
 
-    public void draw(String inputFile, String dateSpecification, String imageFileDirectory, int limit, String targetFileExtension) {
+    public void draw(String inputFile, String eventTimeType, String imageFileDirectory, int limit, String targetFileExtension) {
         EventFileReader.init(inputFile);
         for(int i = 1; i <= limit; i++) {
             Event e = EventFileReader.getInstance().next();
-            String imageFileName = e.getEventType().toString() + "_" + dateSpecification + "_" + i + ".jpg";
-            e.setImageFileString(imageFileDirectory + imageFileName);
-            drawPolygon(e, targetFileExtension);
+            drawPolygon(e, imageFileDirectory, targetFileExtension);
         }
     }
 
@@ -32,16 +30,19 @@ public class DrawPolygonOnImage {
      *
      *
      */
-    public void drawPolygon(Event event, String targetFileExtension) {
+    public void drawPolygon(Event event, String outputFileDirectory, String targetFileExtension) {
         BufferedImage img = null;
         try {
-            img = ImageIO.read(new FileInputStream(new File(event.getImageFileString())));
+            String fileName = outputFileDirectory + event.getImageFileName("S");
+            System.out.println(fileName);
+            img = ImageIO.read(new FileInputStream(new File(fileName)));
             Polygon p = createPolygon(event.getCoordinates());
             Graphics2D g2d = img.createGraphics();
             g2d.setPaint(Color.white);
             g2d.setStroke(new BasicStroke(10f));
             g2d.drawPolygon(p);
-            ImageIO.write(img, targetFileExtension, new File(event.getImageFileString()));
+            g2d.dispose();
+            ImageIO.write(img, targetFileExtension, new File(fileName));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,7 +57,6 @@ public class DrawPolygonOnImage {
         for(int i = 0; i < coordinates.length; i++) {
             xCoordinates[i] = (int)coordinates[i].getX();
             yCoordinates[i] = (int)coordinates[i].getY();
-            System.out.println(xCoordinates[i] + " " + yCoordinates[i]);
         }
 
         return new Polygon(xCoordinates, yCoordinates, xCoordinates.length);

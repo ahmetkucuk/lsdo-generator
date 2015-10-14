@@ -20,6 +20,9 @@ public class EventFileReader {
     private int channelIdIndex;
     private int polygonIndex;
 
+    private int problematicRecord = 0;
+    private int indexOfNextElement = 1;
+
     private EventFileReader(){}
 
     public static void init(String fileName) {
@@ -56,20 +59,30 @@ public class EventFileReader {
 
     public Event next() {
         String line = null;
+        indexOfNextElement++;
         try {
             line = reader.readLine();
+            if(line == null) return null;
+
             String[] columnValues = line.split(SEPARATOR);
             Event e = new Event();
+            e.setId(indexOfNextElement);
+
             e.setStartDateString(columnValues[sdateIndex]);
+            e.setStartDate(Utilities.getDateFromString(columnValues[sdateIndex]));
+
             e.setEndDateString(columnValues[edateIndex]);
-            e.setEventType(EventType.valueOf(columnValues[eventTypeIndex]));
+            e.setEndDate(Utilities.getDateFromString(columnValues[edateIndex]));
+
+            e.setEventType(EventType.fromString(columnValues[eventTypeIndex]));
             String polygonString = columnValues[polygonIndex];
             if(polygonString.contains("POLYGON")) {
                 e.setCoordinateString(polygonString.substring(9, polygonString.length() - 2));
             } else {
                 System.out.println("Input does not contain Polygon String");
+                problematicRecord++;
             }
-            e.setMeasurement(columnValues[channelIdIndex]);
+            e.setMeasurement(columnValues[channelIdIndex].replace("_THIN", ""));
 
             return e;
         } catch (IOException e) {
@@ -92,5 +105,8 @@ public class EventFileReader {
         return -1;
     }
 
+    public String getStats() {
+        return "problem: " + problematicRecord + " total index: " + indexOfNextElement;
+    }
 
 }

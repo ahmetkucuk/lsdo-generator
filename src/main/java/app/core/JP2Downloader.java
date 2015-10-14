@@ -1,4 +1,4 @@
-package app.downloader;
+package app.core;
 
 import app.models.Event;
 import app.utils.Constants;
@@ -31,41 +31,30 @@ public class JP2Downloader {
         for(int i = 1; i <= limit; i++) {
 
             try {
-
                 Thread.sleep(waitBetween * 1000);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             Event e = EventFileReader.getInstance().next();
-
-
-            String urlStart = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(e.getStartDate()), e.getMeasurement());
-            String urlMiddle = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(e.getMiddleDate()), e.getMeasurement());
-            String urlEnd = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(e.getEndDate()), e.getMeasurement());
-
-            String fileNameStart = e.getEventType().toString() + "_S_" + i + ".jp2";
-            String fileNameMiddle = e.getEventType().toString() + "_M_" + i + ".jp2";
-            String fileNameEnd = e.getEventType().toString() + "_E_" + i + ".jp2";
-
-            System.out.println("Started for event: " +  e.toString());
-
-//            System.out.println(e.getStartDate());
-//            System.out.println(e.getEndDate());
-//            System.out.println(e.getMiddleDate());
-//            System.out.println(Utilities.getStringFromDate(e.getMiddleDate()));
-
-            try {
-                downloadImage(urlStart, fileLocation, fileNameStart);
-                downloadImage(urlMiddle, fileLocation, fileNameMiddle);
-                downloadImage(urlEnd, fileLocation, fileNameEnd);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-
-            System.out.println("Finished for event: " +  e.toString());
+            downloadForEvent(e, "S", fileLocation);
         }
+    }
+
+    public void downloadForEvent(Event event, String eventTimeType, String fileLocation) {
+
+        //event.getStartDate will be changed according to eventTimeType
+        String url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getStartDate()), event.getMeasurement());
+
+        String fileName = event.getEventType().toString() + "_" + eventTimeType +"_" + event.getId() + ".jp2";
+
+        try {
+            downloadImage(url, fileLocation, fileName);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+
+        System.out.println("Finished for event: " +  event.toString());
     }
 
     public int findIndexOfHeader(String record, String columnName) {
