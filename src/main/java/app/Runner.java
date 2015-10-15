@@ -19,13 +19,13 @@ public class Runner {
 //        System.out.println(CoordinateSystemConverter.convertHPCToPixXY(new Coordinate(-27.6345, -15.292138)));
 
 //        System.out.println(Utilities.getDateFromString("2012-01-02T00:00:00"));
-        new JP2Downloader().downloadFromInputFile(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, 5, 10);
+//        new JP2Downloader().downloadFromInputFile(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, 5, 10);
 //        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "S", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
 //        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "M", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
 //        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "E", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
 
 //        mikeDataTest();
-//        new JP2DownloaderService().downloadByTime(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, "03/01/2012 18:22:23");
-//        new DrawPolygonService().drawByEventTime(INPUT_FILE_NAME, Constants.JPEG_IMAGE_FILE_LOCATION, "03/01/2012 18:22:23");
+//        new JP2DownloaderService().downloadByTime(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, "02/01/2012 17:41:11");
+        new DrawPolygonService().drawByEventTime(INPUT_FILE_NAME, Constants.JPEG_IMAGE_FILE_LOCATION, "08/01/2012  07:32:59");
     }
 }
