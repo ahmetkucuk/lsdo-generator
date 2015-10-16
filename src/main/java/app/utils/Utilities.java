@@ -8,7 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by ahmetkucuk on 01/10/15.
@@ -39,7 +41,7 @@ public class Utilities {
             Date date = formatter.parse(dateString);
             return date;
         } catch (ParseException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }
@@ -51,8 +53,9 @@ public class Utilities {
         return formatter1.format(date);
     }
 
-    public static Event getEventByTime(String inputFile, String eventTime) throws ParseException {
+    public static List<Event> getEventByTime(String inputFile, String eventTime) throws ParseException {
 
+        List result = new ArrayList();
         SimpleDateFormat dateFormatter = new SimpleDateFormat("DD/MM/YYYY HH:mm:ss");
         Date date = dateFormatter.parse(eventTime);
         System.out.println(date);
@@ -61,11 +64,16 @@ public class Utilities {
         while((event = EventFileReader.getInstance().next()) != null) {
             if(event.getStartDate().getTime() == date.getTime()) {
                 System.out.println("Time: " + event);
-                return event;
+                result.add(event);
             }
         }
 
-        return null;
+        return result;
+    }
+
+    public static boolean isNumeric(String str)
+    {
+        return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 
     public static String executeCommand(String[] cmd) {

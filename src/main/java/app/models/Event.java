@@ -24,8 +24,8 @@ public class Event {
 
     private String measurement;
 
-    public String getImageFileName(String dateSpecification) {
-        return getEventType().toString() + "_" + dateSpecification + "_" + getId() + ".jpg";
+    public String getImageFileName() {
+        return getEventType().toString() + "_" + getId();
     }
 
     public Date getMiddleDate() {
@@ -91,7 +91,12 @@ public class Event {
     }
 
     public String getMeasurement() {
-        return measurement;
+
+        if(measurement == null) return String.valueOf(eventType.getMeasurement());
+        if(measurement.contains("_THIN")) return  measurement.replace("_THIN", "");
+        if(Utilities.isNumeric(measurement)) return measurement;
+
+        return String.valueOf(eventType.getMeasurement());
     }
 
     public void setMeasurement(String measurement) {
@@ -117,7 +122,7 @@ public class Event {
 
             int i = 0;
             for(Coordinate c: coordinates) {
-                newCoordinates[i] = CoordinateSystemConverter.convertHGSToPixXY(c);
+                newCoordinates[i] = CoordinateSystemConverter.convertHPCToPixXY(c);
                 i++;
             }
             coordinates = newCoordinates;

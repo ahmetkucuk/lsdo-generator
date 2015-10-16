@@ -1,6 +1,8 @@
 package app;
 
+import app.core.DrawPolygonOnImage;
 import app.core.JP2Downloader;
+import app.models.EventType;
 import app.service.DrawPolygonService;
 import app.service.JP2DownloaderService;
 import app.utils.Constants;
@@ -11,7 +13,9 @@ import app.utils.Constants;
 public class Runner {
 
     //Directory support should be added.
-    public static final String INPUT_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/FL/RECORD/FL_Records.txt";
+    public static final String INPUT_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/SG/RECORD/SG_Records.txt";
+
+    public static final String INPUT_FILE_NAME_META = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/%s/RECORD/%s_Records.txt";
 
     public static void main(String[] args) throws Exception {
 
@@ -19,13 +23,33 @@ public class Runner {
 //        System.out.println(CoordinateSystemConverter.convertHPCToPixXY(new Coordinate(-27.6345, -15.292138)));
 
 //        System.out.println(Utilities.getDateFromString("2012-01-02T00:00:00"));
-//        new JP2Downloader().downloadFromInputFile(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, 5, 10);
-//        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "S", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
-//        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "M", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
-//        new DrawPolygonOnImage().draw(INPUT_FILE_NAME, "E", Constants.JPEG_IMAGE_FILE_LOCATION, 5, "jpg");
 
-//        mikeDataTest();
-//        new JP2DownloaderService().downloadByTime(INPUT_FILE_NAME, Constants.JP2_IMAGE_FILE_LOCATION, "02/01/2012 17:41:11");
-        new DrawPolygonService().drawByEventTime(INPUT_FILE_NAME, Constants.JPEG_IMAGE_FILE_LOCATION, "08/01/2012  07:32:59");
+        EventType eventType = EventType.AR;
+        int limit = 5;
+        int waitBetween = 10;
+
+//        downloadByEventType(eventType, "S", limit, waitBetween);
+//        downloadByEventType(eventType, "M", limit, waitBetween);
+//        downloadByEventType(eventType, "E", limit, waitBetween);
+
+        drawByEventType(eventType, "S", limit);
+        drawByEventType(eventType, "M", limit);
+        drawByEventType(eventType, "E", limit);
+
+
+    }
+
+
+    /**
+     * This method is implemented for test purpose
+     */
+    public static void downloadByEventType(EventType eventType, String eventTimeType, int limit, int waitBetween) {
+        new JP2Downloader().downloadFromInputFile(String.format(Constants.INPUT_FILE_NAME_META, eventType.toString(), eventType.toString()),
+                eventTimeType, String.format(Constants.OUTPUT_FILE_NAME_META, eventType.toString()), limit, waitBetween);
+    }
+
+    public static void drawByEventType(EventType eventType, String eventTimeType, int limit) {
+        new DrawPolygonOnImage().draw(String.format(Constants.INPUT_FILE_NAME_META, eventType.toString(), eventType.toString()),
+                eventTimeType, String.format(Constants.JPEG_IMAGE_FILE_LOCATION_META, eventType.toString()), limit);
     }
 }

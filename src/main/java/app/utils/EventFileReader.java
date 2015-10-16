@@ -59,7 +59,6 @@ public class EventFileReader {
 
     public Event next() {
         String line = null;
-        indexOfNextElement++;
         try {
             line = reader.readLine();
             if(line == null) return null;
@@ -75,18 +74,23 @@ public class EventFileReader {
             e.setEndDate(Utilities.getDateFromString(columnValues[edateIndex]));
 
             e.setEventType(EventType.fromString(columnValues[eventTypeIndex]));
+            if(polygonIndex == -1) {
+                System.out.println("No header value for polygon");
+            }
             String polygonString = columnValues[polygonIndex];
-            if(polygonString.contains("POLYGON")) {
+            if(polygonIndex != -1 && polygonString.contains("POLYGON")) {
                 e.setCoordinateString(polygonString.substring(9, polygonString.length() - 2));
             } else {
-                System.out.println("Input does not contain Polygon String");
+//                System.out.println("Input does not contain Polygon String");
                 problematicRecord++;
             }
             e.setMeasurement(columnValues[channelIdIndex].replace("_THIN", ""));
 
+            indexOfNextElement++;
+
             return e;
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }

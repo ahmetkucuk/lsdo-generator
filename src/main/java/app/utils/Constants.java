@@ -10,7 +10,7 @@ public class Constants {
         public static final String START_DATE = "event_starttime";
         public static final String END_DATE = "event_endtime";
         public static final String CHANNEL_ID = "obs_channelid";
-        public static final String POLYGON = "hgs_bbox";
+        public static final String POLYGON = "hpc_bbox";
         public static final String EVENT_TYPE = "event_type";
     }
 
@@ -28,13 +28,15 @@ public class Constants {
         public static final int SG_ME = 131;
     }
 
-    public static final String JP2_IMAGE_FILE_LOCATION = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/";
-    public static final String JPEG_IMAGE_FILE_LOCATION = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/jpegs/";
+    public static final String INPUT_FILE_NAME_META = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/%s/RECORD/%s_Records.txt";
+    public static final String OUTPUT_FILE_NAME_META = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/%s/";
+
+    public static final String JPEG_IMAGE_FILE_LOCATION_META = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/%s/jpegs/";
+
+
 
     public static final String IMAGE_DOWNLOAD_URL = "http://gs671-suske.ndc.nasa.gov/api/v1/getJP2Image/?date=%s&instrument=AIA&observatory=SDO&detector=AIA&measurement=%s";
 
 
-
-    String goToDir = "cd " + Constants.JP2_IMAGE_FILE_LOCATION;
     String convertImages = "sips -s format jpeg ./*.jp2 --out jpegs";
 }

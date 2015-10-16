@@ -24,7 +24,7 @@ public class JP2Downloader {
      * @param limit how many of images should be downloaded.
      * @param waitBetween wait between two consecutive download in order not to be banned, in seconds
      */
-    public void downloadFromInputFile(String inputFile, String fileLocation, int limit, int waitBetween) {
+    public void downloadFromInputFile(String inputFile, String eventTimeType, String fileLocation, int limit, int waitBetween) {
 
         EventFileReader.init(inputFile);
 
@@ -37,16 +37,26 @@ public class JP2Downloader {
             }
 
             Event e = EventFileReader.getInstance().next();
-            downloadForEvent(e, "S", fileLocation);
+            downloadForEvent(e, eventTimeType, fileLocation);
         }
     }
 
     public void downloadForEvent(Event event, String eventTimeType, String fileLocation) {
 
         //event.getStartDate will be changed according to eventTimeType
-        String url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getStartDate()), event.getMeasurement());
-
-        String fileName = event.getEventType().toString() + "_" + eventTimeType +"_" + event.getId() + ".jp2";
+        String url = "";
+        switch (eventTimeType) {
+            case "S":
+                url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getStartDate()), event.getMeasurement());
+                break;
+            case "M":
+                url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getMiddleDate()), event.getMeasurement());
+                break;
+            case "E":
+                url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getEndDate()), event.getMeasurement());
+                break;
+        }
+        String fileName = eventTimeType + "_" + event.getImageFileName() + ".jp2";
 
         try {
             downloadImage(url, fileLocation, fileName);
