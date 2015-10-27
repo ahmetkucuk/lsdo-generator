@@ -29,6 +29,10 @@ public class Constants {
     }
 
     public static final String INPUT_FILE_NAME_META = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/%s/RECORD/%s_Records.txt";
+    public static final String INPUT_FILE_EXTRACTED_NAME_META = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/%s/RECORD/%s_Records.txt-Extracted-Attributes.txt";
+    public static final String INPUT_FILE_NAME_BAD_META = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/%s/BAD/%s_Bad_Records.txt";
+
+
     public static final String OUTPUT_FILE_NAME_META = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/%s/";
 
     public static final String JPEG_IMAGE_FILE_LOCATION_META = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/%s/jpegs/";
@@ -37,6 +41,7 @@ public class Constants {
 
     public static final String IMAGE_DOWNLOAD_URL = "http://gs671-suske.ndc.nasa.gov/api/v1/getJP2Image/?date=%s&instrument=AIA&observatory=SDO&detector=AIA&measurement=%s";
 
+    public static final String IMAGE_DIRECTORY = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/";
 
     String convertImages = "sips -s format jpeg ./*.jp2 --out jpegs";
 }

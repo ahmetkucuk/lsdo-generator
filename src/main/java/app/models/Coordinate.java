@@ -31,9 +31,6 @@ public class Coordinate {
 
     @Override
     public String toString() {
-        return "Coordinate{" +
-                "x=" + x +
-                ", y=" + y +
-                '}';
+        return Math.round(x) + "," + Math.round(y);
     }
 }

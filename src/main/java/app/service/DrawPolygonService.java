@@ -30,7 +30,7 @@ public class DrawPolygonService {
                 for(Event e: events) {
                     System.out.println(Arrays.toString(e.getCoordinates()));
                 }
-                new DrawPolygonOnImage().drawPolygon(events.get(0), eventTimeType, outputFileDirectory);
+                new DrawPolygonOnImage().drawPolygonOfEvent(events.get(0), eventTimeType, outputFileDirectory);
             } else {
                 System.out.println("Could not find event for time: " + time);
             }

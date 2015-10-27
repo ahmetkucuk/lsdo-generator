@@ -4,6 +4,7 @@ import app.models.Event;
 import app.models.EventType;
 
 import java.io.*;
+import java.text.ParseException;
 
 /**
  * Created by ahmetkucuk on 04/10/15.
@@ -26,6 +27,8 @@ public class EventFileReader {
     private EventFileReader(){}
 
     public static void init(String fileName) {
+        if(instance != null)
+            instance.onDestroy();
         instance = new EventFileReader();
         instance.loadFileContent(fileName);
     }
@@ -81,16 +84,19 @@ public class EventFileReader {
             if(polygonIndex != -1 && polygonString.contains("POLYGON")) {
                 e.setCoordinateString(polygonString.substring(9, polygonString.length() - 2));
             } else {
-//                System.out.println("Input does not contain Polygon String");
+                System.out.println("Input does not contain Polygon String");
                 problematicRecord++;
             }
-            e.setMeasurement(columnValues[channelIdIndex].replace("_THIN", ""));
+            e.setMeasurement(columnValues[channelIdIndex]);
 
             indexOfNextElement++;
 
             return e;
         } catch (IOException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
+        } catch (ParseException e) {
+            System.out.println(indexOfNextElement + " : " + line);
+            e.printStackTrace();
         }
         return null;
     }
@@ -109,6 +115,14 @@ public class EventFileReader {
         return -1;
     }
 
+    private void onDestroy() {
+        try {
+            if(reader != null)
+                reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public String getStats() {
         return "problem: " + problematicRecord + " total index: " + indexOfNextElement;
     }

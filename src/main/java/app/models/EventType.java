@@ -6,7 +6,7 @@ import app.utils.Constants;
  * Created by ahmetkucuk on 01/10/15.
  */
 public enum EventType {
-    AR, CH, FL, SG, NONE;
+    AR, CH, FL, SG;
 
     public static EventType fromString(String s) {
         switch (s) {
@@ -19,7 +19,7 @@ public enum EventType {
             case "SG":
                 return SG;
         }
-        return NONE;
+        return null;
     }
 
     public double getCDELT() {
@@ -32,8 +32,6 @@ public enum EventType {
                 return Constants.CDELT.FL_CDELT;
             case SG:
                 return Constants.CDELT.SG_CDELT;
-            case NONE:
-                return 0;
         }
         return 0;
     }
@@ -48,8 +46,6 @@ public enum EventType {
                 return Constants.Measurement.FL_ME;
             case SG:
                 return Constants.Measurement.SG_ME;
-            case NONE:
-                return 0;
         }
         return 0;
     }

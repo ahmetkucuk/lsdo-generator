@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -33,22 +34,16 @@ public class Utilities {
         return coordinates;
     }
 
-    public static Date getDateFromString(String dateString) {
+    public static Date getDateFromString(String dateString) throws ParseException{
 
-        SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-DD'T'HH:mm:ss");
-
-        try {
-            Date date = formatter.parse(dateString);
-            return date;
-        } catch (ParseException e) {
-            //e.printStackTrace();
-        }
-        return null;
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-M-dd'T'HH:mm:ss");
+        Date date = formatter.parse(dateString);
+        return date;
     }
 
     public static String getStringFromDate(Date date) {
 
-        SimpleDateFormat formatter1 = new SimpleDateFormat("YYYY-MM-DD'T'HH:mm:ss'Z'");
+        SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         //SimpleDateFormat formatter2 = new SimpleDateFormat("HH:MM:SS");
         return formatter1.format(date);
     }
@@ -56,7 +51,7 @@ public class Utilities {
     public static List<Event> getEventByTime(String inputFile, String eventTime) throws ParseException {
 
         List result = new ArrayList();
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("DD/MM/YYYY HH:mm:ss");
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = dateFormatter.parse(eventTime);
         System.out.println(date);
         EventFileReader.init(inputFile);

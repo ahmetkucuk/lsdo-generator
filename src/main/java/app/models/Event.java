@@ -2,6 +2,7 @@ package app.models;
 
 import app.utils.CoordinateSystemConverter;
 import app.utils.Utilities;
+import com.sun.tools.javac.code.Attribute;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -91,12 +92,13 @@ public class Event {
     }
 
     public String getMeasurement() {
+        return measurement;
 
-        if(measurement == null) return String.valueOf(eventType.getMeasurement());
-        if(measurement.contains("_THIN")) return  measurement.replace("_THIN", "");
-        if(Utilities.isNumeric(measurement)) return measurement;
-
-        return String.valueOf(eventType.getMeasurement());
+//        if(measurement == null) return String.valueOf(eventType.getMeasurement());
+//        if(measurement.contains("_THIN")) return  measurement.replace("_THIN", "");
+//        if(Utilities.isNumeric(measurement)) return measurement;
+//
+//        return String.valueOf(eventType.getMeasurement());
     }
 
     public void setMeasurement(String measurement) {
@@ -140,12 +142,12 @@ public class Event {
 
     @Override
     public String toString() {
-        return "Event{" +
-                "eventType=" + eventType +
-                ", coordinateString='" + coordinateString + '\'' +
-                ", imageFileString='" + imageFileString + '\'' +
-                ", coordinates=" + Arrays.toString(coordinates) +
-                ", measurement='" + measurement + '\'' +
-                '}';
+        String pixelPolygon = "";
+        for(Coordinate c: getCoordinates()) {
+            pixelPolygon = pixelPolygon + " " + c.toString();
+        }
+        pixelPolygon = "POLYGON((" + pixelPolygon.trim() + "))";
+
+        return id + "\t" + eventType.toString() + "\t" + startDateString + "\t" + endDateString + "\t" + measurement + "\t" + pixelPolygon + "\n";
     }
 }
