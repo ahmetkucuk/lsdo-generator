@@ -22,10 +22,16 @@ public class Constants {
     }
 
     public static class Measurement {
-        public static final int AR_ME = 193;
+        public static final int AR_ME = 171;
         public static final int CH_ME = 193;//Not sure about that
-        public static final int FL_ME = 131;
-        public static final int SG_ME = 131;
+        public static final int FL_ME = 193;
+        public static final int SG_ME = 94;
+
+
+        public static final int S_AR_ME = 193;
+        public static final int S_CH_ME = 171;//Not sure about that
+        public static final int S_FL_ME = 131;
+        public static final int S_SG_ME = 131;
     }
 
     public static final String INPUT_FILE_NAME_META = "/Users/ahmetkucuk/Documents/Research/DNNProject/formattedop/%s/RECORD/%s_Records.txt";
@@ -40,6 +46,7 @@ public class Constants {
 
 
     public static final String IMAGE_DOWNLOAD_URL = "http://gs671-suske.ndc.nasa.gov/api/v1/getJP2Image/?date=%s&instrument=AIA&observatory=SDO&detector=AIA&measurement=%s";
+    public static final String IMAGE_JPIP_URI_DOWNLOAD_URL = "http://gs671-suske.ndc.nasa.gov/api/v1/getJP2Image/?date=%s&instrument=AIA&observatory=SDO&detector=AIA&measurement=%s&jpip=true";
 
     public static final String IMAGE_DIRECTORY = "/Users/ahmetkucuk/Documents/Developer/java/QueryHEK/Image/";
 

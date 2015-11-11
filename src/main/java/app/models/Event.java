@@ -20,6 +20,9 @@ public class Event {
     private String endDateString;
     private Date startDate;
     private Date endDate;
+    private String sFileName;
+    private String mFileName;
+    private String eFileName;
 
     private int id;
 
@@ -120,14 +123,6 @@ public class Event {
                 return null;
             }
             coordinates = Utilities.parseCoordinatesString(coordinateString);
-            Coordinate[] newCoordinates = new Coordinate[coordinates.length];
-
-            int i = 0;
-            for(Coordinate c: coordinates) {
-                newCoordinates[i] = CoordinateSystemConverter.convertHPCToPixXY(c);
-                i++;
-            }
-            coordinates = newCoordinates;
         }
         return coordinates;
     }
@@ -140,14 +135,33 @@ public class Event {
         this.id = id;
     }
 
+    public String getsFileName() {
+        return sFileName;
+    }
+
+    public void setsFileName(String sFileName) {
+        this.sFileName = sFileName;
+    }
+
+    public String getmFileName() {
+        return mFileName;
+    }
+
+    public void setmFileName(String mFileName) {
+        this.mFileName = mFileName;
+    }
+
+    public String geteFileName() {
+        return eFileName;
+    }
+
+    public void seteFileName(String eFileName) {
+        this.eFileName = eFileName;
+    }
+
     @Override
     public String toString() {
-        String pixelPolygon = "";
-        for(Coordinate c: getCoordinates()) {
-            pixelPolygon = pixelPolygon + " " + c.toString();
-        }
-        pixelPolygon = "POLYGON((" + pixelPolygon.trim() + "))";
-
-        return id + "\t" + eventType.toString() + "\t" + startDateString + "\t" + endDateString + "\t" + measurement + "\t" + pixelPolygon + "\n";
+        String pixelPolygon = Utilities.polygonToString(this);
+        return getId() + "\t" + getEventType().toString() + "\t" + getStartDateString() + "\t" + getEndDateString() + "\t" + measurement + "\t" + pixelPolygon;
     }
 }

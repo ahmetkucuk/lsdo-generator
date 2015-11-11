@@ -1,13 +1,12 @@
 package app.core;
 
 import app.models.Event;
-import app.utils.Constants;
-import app.utils.EventFileReader;
-import app.utils.Utilities;
+import app.utils.*;
 
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
 
 /**
  * Created by ahmetkucuk on 27/09/15.
@@ -24,20 +23,26 @@ public class JP2Downloader {
      * @param limit how many of images should be downloaded.
      * @param waitBetween wait between two consecutive download in order not to be banned, in seconds
      */
-    public void downloadFromInputFile(String inputFile, String eventTimeType, String fileLocation, int limit, int waitBetween) {
+    public void downloadFromInputFile(String inputFile, String eventTimeType, String fileLocation, int limit, int offset, int waitBetween) {
 
-        EventFileReader.init(inputFile);
+        EventReader.init(inputFile);
 
-        for(int i = 1; i <= limit; i++) {
+        for(int i = 1; i <= limit + offset; i++) {
 
-            try {
-                Thread.sleep(waitBetween * 1000);
-            } catch (Exception e) {
-                e.printStackTrace();
+            Event e = EventReader.getInstance().next();
+            if(i >= offset) {
+                downloadForEvent(e, eventTimeType, fileLocation);
+                wait(waitBetween);
             }
+        }
+    }
 
-            Event e = EventFileReader.getInstance().next();
-            downloadForEvent(e, eventTimeType, fileLocation);
+    private void wait(int seconds) {
+
+        try {
+            Thread.sleep(seconds * 1000);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -45,46 +50,36 @@ public class JP2Downloader {
 
         //event.getStartDate will be changed according to eventTimeType
         String url = "";
+        Date eventDate = null;
         switch (eventTimeType) {
             case "S":
-                url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getStartDate()), event.getMeasurement());
+                eventDate = event.getStartDate();
                 break;
             case "M":
-                url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getMiddleDate()), event.getMeasurement());
+                eventDate = event.getMiddleDate();
                 break;
             case "E":
-                url = String.format(Constants.IMAGE_DOWNLOAD_URL, Utilities.getStringFromDate(event.getEndDate()), event.getMeasurement());
+                eventDate = event.getEndDate();
                 break;
         }
-        String fileName = eventTimeType + "_" + event.getImageFileName() + ".jp2";
+
+        String eventTime = Utilities.getStringFromDate(eventDate);
+        System.out.println(eventTime);
+        url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
 
         try {
-            downloadImage(url, fileLocation, fileName);
+            HttpDownloadUtility.downloadFile(url, fileLocation);
         } catch (IOException e1) {
             e1.printStackTrace();
         }
 
-        System.out.println("Finished for event: " +  event.toString());
-    }
-
-    public int findIndexOfHeader(String record, String columnName) {
-
-        String[] headers = record.split(SEPARATOR);
-        if(headers == null) {
-            return -1;
-        }
-
-        for(int i = 0; i < headers.length; i++) {
-            if(headers[i].equalsIgnoreCase(columnName)) return i;
-        }
-
-        return -1;
+        System.out.println("Finished for event: " + event.toString());
     }
 
 
 
     public void downloadImage(String sourceUrl, String targetDirectory, String targetFileName)
-            throws MalformedURLException, IOException, FileNotFoundException
+            throws IOException
     {
         URL imageUrl = new URL(sourceUrl);
         try (InputStream imageReader = new BufferedInputStream(
@@ -93,6 +88,7 @@ public class JP2Downloader {
                      new FileOutputStream(targetDirectory + File.separator
                              + targetFileName));)
         {
+
             int readByte;
 
             while ((readByte = imageReader.read()) != -1)

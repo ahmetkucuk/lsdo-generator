@@ -22,20 +22,6 @@ public enum EventType {
         return null;
     }
 
-    public double getCDELT() {
-        switch (this) {
-            case AR:
-                return Constants.CDELT.AR_CDELT;
-            case CH:
-                return Constants.CDELT.CH_CDELT;
-            case FL:
-                return Constants.CDELT.FL_CDELT;
-            case SG:
-                return Constants.CDELT.SG_CDELT;
-        }
-        return 0;
-    }
-
     public int getMeasurement() {
         switch (this) {
             case AR:
@@ -46,6 +32,20 @@ public enum EventType {
                 return Constants.Measurement.FL_ME;
             case SG:
                 return Constants.Measurement.SG_ME;
+        }
+        return 0;
+    }
+
+    public int getSecondaryMeasurement() {
+        switch (this) {
+            case AR:
+                return Constants.Measurement.S_AR_ME;
+            case CH:
+                return Constants.Measurement.S_CH_ME;
+            case FL:
+                return Constants.Measurement.S_FL_ME;
+            case SG:
+                return Constants.Measurement.S_SG_ME;
         }
         return 0;
     }

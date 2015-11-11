@@ -12,9 +12,9 @@ import java.util.List;
  */
 public class JP2DownloaderService {
 
-    public void downloadImageFromFile(String inputFile, String eventTimeType, String outputFileDir, int numberOfItemToDownload) {
+    public void downloadImageFromFile(String inputFile, String eventTimeType, String outputFileDir, int numberOfItemToDownload, int offset) {
 
-        new JP2Downloader().downloadFromInputFile(inputFile, eventTimeType, outputFileDir, numberOfItemToDownload, 10);
+        new JP2Downloader().downloadFromInputFile(inputFile, eventTimeType, outputFileDir, numberOfItemToDownload, offset, 10);
 
     }
 

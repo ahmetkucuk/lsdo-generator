@@ -2,16 +2,14 @@ package app.utils;
 
 import app.models.Coordinate;
 import app.models.Event;
+import app.models.EventType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by ahmetkucuk on 01/10/15.
@@ -65,10 +63,68 @@ public class Utilities {
 
         return result;
     }
+    static final Map<String, Integer> map = new HashMap<>();
+    static final Map<String, Integer> mapofPossibleInputs = new HashMap<>();
+
+    public static int mapToPrimaryMeasurement(String measurement, EventType eventType) {
+        if(map.size() == 0)  {
+
+            map.put("AIA 171, AIA 193", 171);
+            map.put("AR", EventType.AR.getMeasurement());
+            map.put("CH", EventType.CH.getMeasurement());
+            map.put("SG", EventType.SG.getMeasurement());
+            map.put("FL", EventType.FL.getMeasurement());
+            map.put("AIA 193", 193);
+            map.put("131_THIN", 131);
+            map.put("94_THIN", 94);
+            map.put("131_THICK", 131);
+            map.put("94_THICK", 94);
+        }
+        return (map.containsKey(measurement)) ? map.get(measurement) : eventType.getMeasurement();
+
+    }
+
+    public static String polygonToString(Event event) {
+        String pixelPolygon = "";
+        Coordinate[] coordinates = event.getCoordinates();
+        for(int i = 0; i < coordinates.length - 1; i++) {
+            pixelPolygon = (i != 0) ? pixelPolygon + "," + coordinates[i].toString() : coordinates[i].toString();
+        }
+        return pixelPolygon;
+    }
+
+    public static String eventToString(Event event) {
+
+        String pixelPolygon = polygonToString(event);
+        int measurement = isNumeric(event.getMeasurement()) ? Integer.parseInt(event.getMeasurement()) : mapToPrimaryMeasurement(event.getMeasurement(), event.getEventType());
+        return event.getId() + "\t" + event.getEventType().toString() + "\t" + event.getStartDateString() + "\t" + event.getEndDateString() + "\t" + measurement + "\t" + pixelPolygon.trim() + "\n";
+    }
+
+    public static String secondaryEventToString(Event event) {
+
+        String pixelPolygon = polygonToString(event);
+        return event.getId() + "\t" + event.getEventType().toString() + "\t" + event.getStartDateString() + "\t" + event.getEndDateString() + "\t" + event.getEventType().getSecondaryMeasurement() + "\t" + pixelPolygon.trim() + "\n";
+    }
 
     public static boolean isNumeric(String str)
     {
         return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+    }
+
+    public static boolean hasRealMeasurementValue(String measurement) {
+        if(isNumeric(measurement)) return true;
+
+        if(map.size() == 0)  {
+
+            mapofPossibleInputs.put("AIA 171, AIA 193", 171);
+            mapofPossibleInputs.put("AIA 193", 193);
+            mapofPossibleInputs.put("131_THIN", 131);
+            mapofPossibleInputs.put("94_THIN", 94);
+            mapofPossibleInputs.put("131_THICK", 131);
+            mapofPossibleInputs.put("94_THICK", 94);
+
+        }
+        return mapofPossibleInputs.containsKey(measurement);
     }
 
     public static String executeCommand(String[] cmd) {

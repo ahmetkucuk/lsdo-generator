@@ -7,14 +7,15 @@ import java.io.*;
 import java.text.ParseException;
 
 /**
- * Created by ahmetkucuk on 04/10/15.
+ * Created by ahmetkucuk on 01/11/15.
  */
-public class EventFileReader {
+public class EventReader {
 
 
     public static final String SEPARATOR = "\t";
-    private static EventFileReader instance;
+    private static EventReader instance;
     private BufferedReader reader;
+    private int eventIdIndex;
     private int eventTypeIndex;
     private int sdateIndex;
     private int edateIndex;
@@ -24,16 +25,16 @@ public class EventFileReader {
     private int problematicRecord = 0;
     private int indexOfNextElement = 1;
 
-    private EventFileReader(){}
+    private EventReader(){}
 
     public static void init(String fileName) {
         if(instance != null)
             instance.onDestroy();
-        instance = new EventFileReader();
+        instance = new EventReader();
         instance.loadFileContent(fileName);
     }
 
-    public static EventFileReader getInstance() {
+    public static EventReader getInstance() {
         if(instance == null) {
             System.err.println("You have to init before you call getInstance");
         }
@@ -47,12 +48,15 @@ public class EventFileReader {
             DataInputStream in = new DataInputStream(fStream1);
             reader = new BufferedReader(new InputStreamReader(in));
 //
+            //Skip header
             String line = reader.readLine();
-            eventTypeIndex = findIndexOfHeader(line, Constants.FieldNames.EVENT_TYPE);
-            sdateIndex = findIndexOfHeader(line, Constants.FieldNames.START_DATE);
-            edateIndex = findIndexOfHeader(line, Constants.FieldNames.END_DATE);
-            channelIdIndex = findIndexOfHeader(line, Constants.FieldNames.CHANNEL_ID);
-            polygonIndex = findIndexOfHeader(line, Constants.FieldNames.POLYGON);
+            eventIdIndex = 0;
+            eventTypeIndex = 1;
+            sdateIndex = 2;
+            edateIndex = 3;
+            channelIdIndex = 4;
+            polygonIndex = 5;
+
 
 
         } catch (FileNotFoundException e) {
@@ -70,7 +74,7 @@ public class EventFileReader {
 
             String[] columnValues = line.split(SEPARATOR);
             Event e = new Event();
-            e.setId(indexOfNextElement);
+            e.setId(Integer.parseInt(columnValues[eventIdIndex]));
 
             e.setStartDateString(columnValues[sdateIndex]);
             e.setStartDate(Utilities.getDateFromString(columnValues[sdateIndex]));
@@ -83,12 +87,7 @@ public class EventFileReader {
                 System.out.println("No header value for polygon");
             }
             String polygonString = columnValues[polygonIndex];
-            if(polygonIndex != -1 && polygonString.contains("POLYGON")) {
-                e.setCoordinateString(polygonString.substring(9, polygonString.length() - 2));
-            } else {
-                System.out.println("Input does not contain Polygon String");
-                problematicRecord++;
-            }
+            e.setCoordinateString(polygonString);
             e.setMeasurement(columnValues[channelIdIndex]);
 
             indexOfNextElement++;

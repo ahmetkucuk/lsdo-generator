@@ -31,6 +31,6 @@ public class Coordinate {
 
     @Override
     public String toString() {
-        return Math.round(x) + "," + Math.round(y);
+        return Math.round(x) + " " + Math.round(y);
     }
 }

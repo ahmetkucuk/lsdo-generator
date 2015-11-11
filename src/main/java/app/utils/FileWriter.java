@@ -51,7 +51,7 @@ public class FileWriter {
      *
      * @param fn
      */
-    public void writeToFile(String fn) {
+    public synchronized void writeToFile(String fn) {
         try {
             out.write(fn);
         } catch (IOException e) {

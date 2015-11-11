@@ -2,11 +2,10 @@ package app;
 
 import app.core.DrawPolygonOnImage;
 import app.core.JP2Downloader;
-import app.models.Coordinate;
+import app.core.URIFinder;
 import app.models.Event;
 import app.models.EventType;
 import app.service.BadRecordCleaner;
-import app.service.DrawPolygonService;
 import app.service.JP2DownloaderService;
 import app.service.RecordCleaner;
 import app.utils.Constants;
@@ -14,8 +13,13 @@ import app.utils.EventFileReader;
 import app.utils.FileWriter;
 import app.utils.Utilities;
 
+import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ahmetkucuk on 27/09/15.
@@ -36,6 +40,10 @@ public class Runner {
 
     public static final String EXTRACTED_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/%s/%s_Records.txt";
     public static final String FINAL_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events.txt";
+    public static final String FINAL_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename.txt";
+    public static final String FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary_with_filename.txt";
+    public static final String FINAL_SECONDARY_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt";
+    public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/";
     public static final String EXTRACTED_BAD_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/%s/%s_Bad_Records-extracted.txt";
 
     public static void main(String[] args) throws Exception {
@@ -59,17 +67,68 @@ public class Runner {
 //        mikeTest();
 //        clearAllBadRecords();
 //        clearAllRecords();
-        readAllData();
+//        readAllData();
+//        downloadFinalImages();
+//        getJPIPFileName();
+//        test();
+        getJPIPFileNameForSecondary();
+    }
+
+    public static void test() throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(7);
+        executorService.submit(() -> {
+            try{
+                Thread.sleep(100000);
+                System.out.println("in thread");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        System.out.println("after executor");
+        executorService.submit(() -> {
+            try{
+                Thread.sleep(1000);
+                System.out.println("in thread 2 ");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        System.out.println("after executor 5");
+        executorService.submit(() -> {
+            try{
+                Thread.sleep(1000);
+                System.out.println("in thread 3 ");
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        executorService.shutdown();
+        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        System.out.println("after executor 2");
+    }
+
+    public static void getJPIPFileNameForSecondary() {
+        new URIFinder().getJPIPUriNameFromFile(FINAL_SECONDARY_DATA_OUTPUT, FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME);
+    }
+
+    public static void getJPIPFileName() {
+        new URIFinder().getJPIPUriNameFromFile(FINAL_DATA_OUTPUT, FINAL_DATA_OUTPUT_WITH_FILE_NAME);
+    }
+
+    public static void downloadFinalImages() {
+
+        new JP2DownloaderService().downloadImageFromFile(FINAL_DATA_OUTPUT, "S", FINAL_DATA_IMAGE_OUTPUT, 5, 100000);
 
     }
 
     public static final List<Event> allEvents = new ArrayList<>();
 
     static Set<String> set = new HashSet<>();
+    static Map<String, Set<String>> map = new HashMap<>();
 
     public static void readAllData() {
 
-        int eventId = 1000000;
+        int eventId = 5000000;
         for(EventType e: EventType.values()) {
             int id = eventId;
             String inputFile = String.format(EXTRACTED_FILE, e.toString(), e.toString());
@@ -90,21 +149,32 @@ public class Runner {
             eventId += 1000000;
         }
 
-//        FileWriter writer = new FileWriter(FINAL_DATA_OUTPUT);
-//        writer.start();
-//        writer.writeToFile("id\tevent_type\tstarttime\tendtime\tchannel\tbbox\n");
+        FileWriter writer = new FileWriter(FINAL_SECONDARY_DATA_OUTPUT);
+        writer.start();
+        writer.writeToFile("id\tevent_type\tstart_time\tend_time\tchannel\tbbox\n");
         for(int i = 0; i < allEvents.size(); i++) {
             Event event = allEvents.get(i);
 //            System.out.println(event.getMeasurement());
-            set.add(event.getMeasurement());
-//            writer.writeToFile(event.toString());
+//            if(event.getMeasurement().equalsIgnoreCase("AR"))
+//                System.out.println(event.toString());
+//            if(!map.containsKey(event.getEventType().toString())) {
+//                map.put(event.getEventType().toString(), new HashSet<String>());
+//            }
+//            map.get(event.getEventType().toString()).add(event.getMeasurement());
+            if(!Utilities.hasRealMeasurementValue(event.getMeasurement())) {
+                writer.writeToFile(Utilities.secondaryEventToString(event));
+            }
+//            writer.writeToFile(Utilities.eventToString(event));
         }
 
-//        writer.finish();
-        Iterator<String> iterator = set.iterator();
-        while(iterator.hasNext()) {
-            System.out.println(iterator.next());
-        }
+        writer.finish();
+//        for(Map.Entry<String, Set<String>> entry:  map.entrySet()) {
+//            System.out.println("*****" + entry.getKey());
+//            Iterator<String> iterator = entry.getValue().iterator();
+//            while(iterator.hasNext()) {
+//                System.out.println(iterator.next());
+//            }
+//        }
 
         System.out.println("List size: " + allEvents.size());
     }
@@ -134,7 +204,7 @@ public class Runner {
      */
     public static void downloadByEventType(EventType eventType, String eventTimeType, int limit, int waitBetween) {
         new JP2Downloader().downloadFromInputFile(String.format(Constants.INPUT_FILE_NAME_META, eventType.toString(), eventType.toString()),
-                eventTimeType, String.format(Constants.OUTPUT_FILE_NAME_META, eventType.toString()), limit, waitBetween);
+                eventTimeType, String.format(Constants.OUTPUT_FILE_NAME_META, eventType.toString()), limit, 0, waitBetween);
     }
 
     public static void drawByEventType(EventType eventType, String eventTimeType, int limit) {
