@@ -13,7 +13,6 @@ public class EventReader {
 
 
     public static final String SEPARATOR = "\t";
-    private static EventReader instance;
     private BufferedReader reader;
     private int eventIdIndex;
     private int eventTypeIndex;
@@ -21,24 +20,15 @@ public class EventReader {
     private int edateIndex;
     private int channelIdIndex;
     private int polygonIndex;
+    private int sFileName;
+    private int mFileName;
+    private int eFileName;
 
     private int problematicRecord = 0;
     private int indexOfNextElement = 1;
 
-    private EventReader(){}
-
-    public static void init(String fileName) {
-        if(instance != null)
-            instance.onDestroy();
-        instance = new EventReader();
-        instance.loadFileContent(fileName);
-    }
-
-    public static EventReader getInstance() {
-        if(instance == null) {
-            System.err.println("You have to init before you call getInstance");
-        }
-        return instance;
+    public EventReader(String fileName) {
+        loadFileContent(fileName);
     }
 
     private void loadFileContent(String inputFile) {
@@ -56,6 +46,9 @@ public class EventReader {
             edateIndex = 3;
             channelIdIndex = 4;
             polygonIndex = 5;
+            sFileName = 6;
+            mFileName = 7;
+            eFileName = 8;
 
 
 
@@ -90,6 +83,12 @@ public class EventReader {
             e.setCoordinateString(polygonString);
             e.setMeasurement(columnValues[channelIdIndex]);
 
+            if(columnValues.length > 6) {
+                e.setsFileName(columnValues[sFileName]);
+                e.setmFileName(columnValues[mFileName]);
+                e.seteFileName(columnValues[eFileName]);
+            }
+
             indexOfNextElement++;
 
             return e;
@@ -100,20 +99,6 @@ public class EventReader {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public int findIndexOfHeader(String record, String columnName) {
-
-        String[] headers = record.split(SEPARATOR);
-        if(headers == null) {
-            return -1;
-        }
-
-        for(int i = 0; i < headers.length; i++) {
-            if(headers[i].equalsIgnoreCase(columnName)) return i;
-        }
-
-        return -1;
     }
 
     private void onDestroy() {

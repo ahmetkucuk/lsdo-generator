@@ -5,18 +5,13 @@ import app.core.JP2Downloader;
 import app.core.URIFinder;
 import app.models.Event;
 import app.models.EventType;
-import app.service.BadRecordCleaner;
+import app.service.clean.BadRecordCleaner;
 import app.service.JP2DownloaderService;
-import app.service.RecordCleaner;
-import app.utils.Constants;
-import app.utils.EventFileReader;
-import app.utils.FileWriter;
-import app.utils.Utilities;
+import app.service.clean.RecordCleaner;
+import app.utils.*;
 
-import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +35,7 @@ public class Runner {
 
     public static final String EXTRACTED_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/%s/%s_Records.txt";
     public static final String FINAL_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events.txt";
-    public static final String FINAL_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename.txt";
+    public static final String FINAL_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename_wrong.txt";
     public static final String FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary_with_filename.txt";
     public static final String FINAL_SECONDARY_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt";
     public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/";
@@ -70,41 +65,47 @@ public class Runner {
 //        readAllData();
 //        downloadFinalImages();
 //        getJPIPFileName();
-//        test();
-        getJPIPFileNameForSecondary();
+        test();
+//        getJPIPFileNameForSecondary();
+//        fixCoordinateError();
     }
 
+//    public static void fixCoordinateError() {
+//
+//        EventReader trueValues = new EventReader(FINAL_DATA_OUTPUT);
+//        EventReader wrongValues = new EventReader(FINAL_DATA_OUTPUT_WITH_FILE_NAME);
+//
+//        Event trueEvent = null;
+//        Event wrongEvent = null;
+//
+//        FileWriter fileWriter = new FileWriter(FINAL_2_DATA_OUTPUT_WITH_FILE_NAME);
+//        fileWriter.start();
+//        fileWriter.writeToFile("id\tevent_type\tstart_time\tend_time\tchannel\tbbox\tsfilename\tmfilename\tefilename\n");
+//        while((trueEvent = trueValues.next()) != null && (wrongEvent = wrongValues.next()) != null) {
+//            wrongEvent.setCoordinateString(trueEvent.getCoordinateString());
+//            fileWriter.writeToFile(wrongEvent.toString() + "\n");
+//        }
+//        fileWriter.finish();
+//
+//    }
+
+
     public static void test() throws InterruptedException {
-        ExecutorService executorService = Executors.newFixedThreadPool(7);
-        executorService.submit(() -> {
-            try{
-                Thread.sleep(100000);
-                System.out.println("in thread");
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        System.out.println("after executor");
-        executorService.submit(() -> {
-            try{
-                Thread.sleep(1000);
-                System.out.println("in thread 2 ");
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        System.out.println("after executor 5");
-        executorService.submit(() -> {
-            try{
-                Thread.sleep(1000);
-                System.out.println("in thread 3 ");
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        ExecutorService executorService = Executors.newFixedThreadPool(100);
+        long startTime = System.currentTimeMillis();
+        for(int i = 0; i < 250; i++) {
+            executorService.submit(() -> {
+                try{
+                    Thread.sleep(1000);
+                    System.out.println("in thread");
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
         executorService.shutdown();
         executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-        System.out.println("after executor 2");
+        System.out.println("after: " + ((System.currentTimeMillis() - startTime)/(1000)));
     }
 
     public static void getJPIPFileNameForSecondary() {

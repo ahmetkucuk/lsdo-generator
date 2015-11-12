@@ -31,7 +31,7 @@ public class URIFinder {
 
     public void getJPIPUriNameFromFile(String file, String outputFile) {
 
-        EventReader.init(file);
+        EventReader eventReader = new EventReader(file);
         Event event = null;
         int counter = 0;
 
@@ -40,7 +40,7 @@ public class URIFinder {
         List<Event> eventList = new ArrayList<>();
         List<Future<HttpResponse<String>>> futureList = new ArrayList<>();
 
-        while((event = EventReader.getInstance().next()) != null) {
+        while((event = eventReader.next()) != null) {
 
             if(counter % 1000 == 0)
                 System.out.println("Do not worry still going: " + counter);

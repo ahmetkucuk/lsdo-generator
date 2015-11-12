@@ -25,11 +25,11 @@ public class JP2Downloader {
      */
     public void downloadFromInputFile(String inputFile, String eventTimeType, String fileLocation, int limit, int offset, int waitBetween) {
 
-        EventReader.init(inputFile);
+        EventReader eventReader = new EventReader(inputFile);
 
         for(int i = 1; i <= limit + offset; i++) {
 
-            Event e = EventReader.getInstance().next();
+            Event e = eventReader.next();
             if(i >= offset) {
                 downloadForEvent(e, eventTimeType, fileLocation);
                 wait(waitBetween);
@@ -77,24 +77,24 @@ public class JP2Downloader {
     }
 
 
-
-    public void downloadImage(String sourceUrl, String targetDirectory, String targetFileName)
-            throws IOException
-    {
-        URL imageUrl = new URL(sourceUrl);
-        try (InputStream imageReader = new BufferedInputStream(
-                imageUrl.openStream());
-             OutputStream imageWriter = new BufferedOutputStream(
-                     new FileOutputStream(targetDirectory + File.separator
-                             + targetFileName));)
-        {
-
-            int readByte;
-
-            while ((readByte = imageReader.read()) != -1)
-            {
-                imageWriter.write(readByte);
-            }
-        }
-    }
+//
+//    public void downloadImage(String sourceUrl, String targetDirectory, String targetFileName)
+//            throws IOException
+//    {
+//        URL imageUrl = new URL(sourceUrl);
+//        try (InputStream imageReader = new BufferedInputStream(
+//                imageUrl.openStream());
+//             OutputStream imageWriter = new BufferedOutputStream(
+//                     new FileOutputStream(targetDirectory + File.separator
+//                             + targetFileName));)
+//        {
+//
+//            int readByte;
+//
+//            while ((readByte = imageReader.read()) != -1)
+//            {
+//                imageWriter.write(readByte);
+//            }
+//        }
+//    }
 }

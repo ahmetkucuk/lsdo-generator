@@ -1,4 +1,4 @@
-package app.service;
+package app.service.clean;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

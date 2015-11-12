@@ -1,7 +1,6 @@
-package app.service;
+package app.service.clean;
 
 import java.io.*;
-import java.util.Iterator;
 
 /**
  * Created by ahmetkucuk on 21/10/15.

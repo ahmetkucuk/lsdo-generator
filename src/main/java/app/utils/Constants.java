@@ -16,20 +16,20 @@ public class Constants {
 
     public static class CDELT {
         public static final double AR_CDELT = 0.599733;
-        public static final double CH_CDELT = 0.599733;//Not sure about that
+        public static final double CH_CDELT = 0.599733;
         public static final double FL_CDELT = 0.599733;
         public static final double SG_CDELT = 0.599733;
     }
 
     public static class Measurement {
         public static final int AR_ME = 171;
-        public static final int CH_ME = 193;//Not sure about that
+        public static final int CH_ME = 193;
         public static final int FL_ME = 193;
         public static final int SG_ME = 94;
 
 
         public static final int S_AR_ME = 193;
-        public static final int S_CH_ME = 171;//Not sure about that
+        public static final int S_CH_ME = 171;
         public static final int S_FL_ME = 131;
         public static final int S_SG_ME = 131;
     }

@@ -162,6 +162,6 @@ public class Event {
     @Override
     public String toString() {
         String pixelPolygon = Utilities.polygonToString(this);
-        return getId() + "\t" + getEventType().toString() + "\t" + getStartDateString() + "\t" + getEndDateString() + "\t" + measurement + "\t" + pixelPolygon;
+        return getId() + "\t" + getEventType().toString() + "\t" + getStartDateString() + "\t" + getEndDateString() + "\t" + measurement + "\t" + pixelPolygon + "\t" + sFileName + "\t" + mFileName + "\t" + eFileName;
     }
 }
