@@ -35,7 +35,7 @@ public class Runner {
 
     public static final String EXTRACTED_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/%s/%s_Records.txt";
     public static final String FINAL_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events.txt";
-    public static final String FINAL_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename_wrong.txt";
+    public static final String FINAL_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename.txt";
     public static final String FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary_with_filename.txt";
     public static final String FINAL_SECONDARY_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt";
     public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/";
@@ -63,9 +63,9 @@ public class Runner {
 //        clearAllBadRecords();
 //        clearAllRecords();
 //        readAllData();
-//        downloadFinalImages();
+        downloadFinalImages();
 //        getJPIPFileName();
-        test();
+//        test();
 //        getJPIPFileNameForSecondary();
 //        fixCoordinateError();
     }
@@ -118,7 +118,11 @@ public class Runner {
 
     public static void downloadFinalImages() {
 
-        new JP2DownloaderService().downloadImageFromFile(FINAL_DATA_OUTPUT, "S", FINAL_DATA_IMAGE_OUTPUT, 5, 100000);
+        long startTime = System.currentTimeMillis();
+        new JP2DownloaderService().downloadImageFromFile(FINAL_DATA_OUTPUT_WITH_FILE_NAME, "S", FINAL_DATA_IMAGE_OUTPUT, 100, 100000);
+        long endTime = System.currentTimeMillis() - startTime;
+        System.out.println("End Time: " + endTime + " in seconds: " + (endTime/(1000)));
+//        new JP2DownloaderService().downloadImageFromFile(FINAL_DATA_OUTPUT_WITH_FILE_NAME, "S", FINAL_DATA_IMAGE_OUTPUT, 100, 150000);
 
     }
 

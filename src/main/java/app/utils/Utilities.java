@@ -5,6 +5,7 @@ import app.models.Event;
 import app.models.EventType;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
@@ -19,6 +20,11 @@ public class Utilities {
     private static final String DELIMETER_COOR = ",";
     private static final String DELIMETER_POINT = " ";
 
+
+    public static boolean isFileExists(String filePathString) {
+        File f = new File(filePathString);
+        return f.exists() && !f.isDirectory();
+    }
 
     public static Coordinate[] parseCoordinatesString(String coordinateString) {
         String[] numbers = coordinateString.split(DELIMETER_COOR);

@@ -7,6 +7,12 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by ahmetkucuk on 27/09/15.
@@ -14,7 +20,15 @@ import java.util.Date;
 public class JP2Downloader {
 
     public static final String SEPARATOR = "\t";
+    public static final int THREAD_COUNT = 1;
+    private static ExecutorService executorService;
+    private static Set<String> downloadedImageNames;
 
+
+    public JP2Downloader() {
+        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        downloadedImageNames = new HashSet<>();
+    }
 
     /**
      *
@@ -31,10 +45,25 @@ public class JP2Downloader {
 
             Event e = eventReader.next();
             if(i >= offset) {
-                downloadForEvent(e, eventTimeType, fileLocation);
-                wait(waitBetween);
+                executorService.execute(() -> {
+                    try {
+                        downloadForEvent(e, eventTimeType, fileLocation);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+                );
+//                wait(waitBetween);
             }
         }
+        System.out.println("Finished Creating Thread");
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Finished All!");
     }
 
     private void wait(int seconds) {
@@ -51,24 +80,30 @@ public class JP2Downloader {
         //event.getStartDate will be changed according to eventTimeType
         String url = "";
         Date eventDate = null;
+        String imageFileName = null;
         switch (eventTimeType) {
             case "S":
                 eventDate = event.getStartDate();
+                imageFileName = event.getsFileName();
                 break;
             case "M":
                 eventDate = event.getMiddleDate();
+                imageFileName = event.getmFileName();
                 break;
             case "E":
                 eventDate = event.getEndDate();
+                imageFileName = event.geteFileName();
                 break;
         }
 
         String eventTime = Utilities.getStringFromDate(eventDate);
-        System.out.println(eventTime);
         url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
 
         try {
-            HttpDownloadUtility.downloadFile(url, fileLocation);
+            String downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation);
+            if(!downloadedFileName.equalsIgnoreCase((imageFileName + ".jp2"))) {
+                System.out.println("File Name Error for " + event.toString());
+            }
         } catch (IOException e1) {
             e1.printStackTrace();
         }

@@ -21,7 +21,7 @@ public class HttpDownloadUtility {
      * @param saveDir path of the directory to save the file
      * @throws IOException
      */
-    public static void downloadFile(String fileURL, String saveDir)
+    public static String downloadFile(String fileURL, String saveDir)
             throws IOException {
         URL url = new URL(fileURL);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
@@ -51,6 +51,12 @@ public class HttpDownloadUtility {
             InputStream inputStream = httpConn.getInputStream();
             String saveFilePath = saveDir + File.separator + fileName;
 
+            if(Utilities.isFileExists(saveFilePath)) {
+                inputStream.close();
+                httpConn.disconnect();
+                return fileName;
+            }
+
             // opens an output stream to save into file
             FileOutputStream outputStream = new FileOutputStream(saveFilePath);
 
@@ -61,12 +67,14 @@ public class HttpDownloadUtility {
             }
 
             outputStream.close();
-            inputStream.close();
+
+            return fileName;
 
         } else {
             System.out.println("No file to download. Server replied HTTP code: " + responseCode);
         }
         httpConn.disconnect();
+        return null;
     }
 
     public static void main(String[] args) {
