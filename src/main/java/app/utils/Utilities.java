@@ -69,6 +69,8 @@ public class Utilities {
 
         return result;
     }
+
+
     static final Map<String, Integer> map = new HashMap<>();
     static final Map<String, Integer> mapofPossibleInputs = new HashMap<>();
 
@@ -93,7 +95,7 @@ public class Utilities {
     public static String polygonToString(Event event) {
         String pixelPolygon = "";
         Coordinate[] coordinates = event.getCoordinates();
-        for(int i = 0; i < coordinates.length - 1; i++) {
+        for(int i = 0; i < coordinates.length; i++) {
             pixelPolygon = (i != 0) ? pixelPolygon + "," + coordinates[i].toString() : coordinates[i].toString();
         }
         return pixelPolygon;

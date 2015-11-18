@@ -2,7 +2,6 @@ package app.models;
 
 import app.utils.CoordinateSystemConverter;
 import app.utils.Utilities;
-import com.sun.tools.javac.code.Attribute;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -40,6 +39,10 @@ public class Event {
 
         Date middleDate = new Date(startDate.getTime()/2 + endDate.getTime()/2);
         return  middleDate;
+    }
+
+    public String getHash() {
+        return eventType.toString() + startDateString + endDateString + coordinateString;
     }
 
     public Date getStartDate() {

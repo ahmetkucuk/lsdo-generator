@@ -68,4 +68,19 @@ public class DrawPolygonOnImage {
         return new Polygon(xCoordinates, yCoordinates, xCoordinates.length);
     }
 
+    public static Polygon createPolygonAddOneMore(Coordinate[] coordinates) {
+        int[] xCoordinates = new int[coordinates.length + 1];
+        int[] yCoordinates = new int[coordinates.length + 1];
+
+        for(int i = 0; i < coordinates.length - 1; i++) {
+            xCoordinates[i] = (int)coordinates[i].getX();
+            yCoordinates[i] = (int)coordinates[i].getY();
+        }
+
+        xCoordinates[coordinates.length - 1] = (int)coordinates[0].getX();
+        yCoordinates[coordinates.length - 1] = (int)coordinates[0].getY();
+
+        return new Polygon(xCoordinates, yCoordinates, xCoordinates.length);
+    }
+
 }

@@ -2,6 +2,7 @@ package app.service;
 
 import app.core.JP2Downloader;
 import app.models.Event;
+import app.utils.EventReader;
 import app.utils.Utilities;
 
 import java.text.ParseException;
@@ -32,6 +33,22 @@ public class JP2DownloaderService {
             }
         } catch (ParseException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void downloadById(String inputFile, String outputFileLocation, int id) {
+
+        EventReader reader = new EventReader(inputFile);
+        Event event = null;
+        while((event = reader.next()) != null) {
+            if(event.getId() == id)
+                break;
+        }
+
+        if(event != null) {
+            new JP2Downloader().downloadForEvent(event, "S", outputFileLocation);
+        } else {
+            System.out.println("Could not find event for time: " + id);
         }
     }
 

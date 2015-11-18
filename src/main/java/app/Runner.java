@@ -3,6 +3,7 @@ package app;
 import app.core.DrawPolygonOnImage;
 import app.core.JP2Downloader;
 import app.core.URIFinder;
+import app.models.Coordinate;
 import app.models.Event;
 import app.models.EventType;
 import app.service.clean.BadRecordCleaner;
@@ -10,8 +11,10 @@ import app.service.JP2DownloaderService;
 import app.service.clean.RecordCleaner;
 import app.utils.*;
 
+import java.awt.*;
 import java.text.ParseException;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -36,7 +39,12 @@ public class Runner {
     public static final String EXTRACTED_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/%s/%s_Records.txt";
     public static final String FINAL_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events.txt";
     public static final String FINAL_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename.txt";
+    public static final String FINAL_2_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename_deleted_duplicates.txt";
+    public static final String FINAL_DATA_OUTPUT_WITH_FILE_NAME_WITHOUT_DUPLICATED_CLEAR_DATE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_with_filename_deleted_duplicates_date_cleared.txt";
+
     public static final String FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary_with_filename.txt";
+    public static final String FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME_WITHOUT_DUPLICATES_CLEAR_DATE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary_with_filename_deleted_duplicated_date_cleared.txt";
+    public static final String FINAL_2_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary_with_filename_deleted_duplicates.txt";
     public static final String FINAL_SECONDARY_DATA_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt";
     public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/";
     public static final String EXTRACTED_BAD_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/%s/%s_Bad_Records-extracted.txt";
@@ -63,31 +71,110 @@ public class Runner {
 //        clearAllBadRecords();
 //        clearAllRecords();
 //        readAllData();
-        downloadFinalImages();
+//        downloadFinalImages();
 //        getJPIPFileName();
 //        test();
 //        getJPIPFileNameForSecondary();
 //        fixCoordinateError();
+//        findDuplicates();
+//        clearWrongDateData();
+//        new JP2DownloaderService().downloadById(FINAL_SECONDARY_DATA_OUTPUT, FINAL_DATA_IMAGE_OUTPUT, 6049934);
+//        drawOnImage();
+        System.out.println("Caslisti! ***************");
     }
 
-//    public static void fixCoordinateError() {
-//
-//        EventReader trueValues = new EventReader(FINAL_DATA_OUTPUT);
-//        EventReader wrongValues = new EventReader(FINAL_DATA_OUTPUT_WITH_FILE_NAME);
-//
-//        Event trueEvent = null;
-//        Event wrongEvent = null;
-//
-//        FileWriter fileWriter = new FileWriter(FINAL_2_DATA_OUTPUT_WITH_FILE_NAME);
-//        fileWriter.start();
-//        fileWriter.writeToFile("id\tevent_type\tstart_time\tend_time\tchannel\tbbox\tsfilename\tmfilename\tefilename\n");
-//        while((trueEvent = trueValues.next()) != null && (wrongEvent = wrongValues.next()) != null) {
-//            wrongEvent.setCoordinateString(trueEvent.getCoordinateString());
-//            fileWriter.writeToFile(wrongEvent.toString() + "\n");
-//        }
-//        fileWriter.finish();
-//
-//    }
+    public static void drawOnImage() {
+        EventReader reader = new EventReader(FINAL_SECONDARY_DATA_OUTPUT);
+        Event event = null;
+        int i = 0;
+        List<Coordinate[]> coordinateList = new ArrayList<>();
+        while((event = reader.next()) != null) {
+            if((event.getId() - i) == 6049932) {
+                coordinateList.add(event.getCoordinates());
+                System.out.println(event.toString());
+                i++;
+            }
+            if(i == 48) break;
+        }
+
+        DrawPolygonOnImage drawPolygonOnImage = new DrawPolygonOnImage();
+
+        for(Coordinate[] coordinates : coordinateList) {
+            Polygon p = DrawPolygonOnImage.createPolygon(coordinates);
+            drawPolygonOnImage.drawPolygon(FINAL_DATA_IMAGE_OUTPUT + "jpegs/2013_02_13__12_03_47_34__SDO_AIA_AIA_171.jpg", p);
+        }
+
+    }
+
+    public static void clearWrongDateData() {
+        EventReader reader= new EventReader(FINAL_2_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME);
+        Event event = null;
+        int longEvents = 0;
+
+
+        FileWriter fileWriter = new FileWriter(FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME_WITHOUT_DUPLICATES_CLEAR_DATE);
+        fileWriter.start();
+        fileWriter.writeToFile("id\tevent_type\tstart_time\tend_time\tchannel\tbbox\tsfilename\tmfilename\tefilename\n");
+
+        while((event = reader.next()) != null) {
+            if ((event.getEndDate().getTime() - event.getStartDate().getTime()) < 0) continue;
+
+            //Longer than 6 days
+            if ((event.getEndDate().getTime() - event.getStartDate().getTime()) > 1000 * 60 * 60 * 24 * 6) {
+
+                longEvents++;
+                continue;
+            }
+            fileWriter.writeToFile(event.toString() + "\n");
+        }
+
+        System.out.println("longEventCount: " + longEvents);
+        fileWriter.finish();
+    }
+
+    public static void findDuplicates() {
+        Set<String> set = new HashSet<>();
+        EventReader reader= new EventReader(FINAL_DATA_OUTPUT_WITH_FILE_NAME);
+        Event event = null;
+        int numberOfDuplicates = 0;
+
+
+        FileWriter fileWriter = new FileWriter(FINAL_2_DATA_OUTPUT_WITH_FILE_NAME);
+        fileWriter.start();
+        fileWriter.writeToFile("id\tevent_type\tstart_time\tend_time\tchannel\tbbox\tsfilename\tmfilename\tefilename\n");
+
+        while((event = reader.next()) != null) {
+
+            if(set.contains(event.getHash())) {
+                numberOfDuplicates++;
+            } else {
+                fileWriter.writeToFile(event.toString() + "\n");
+                set.add(event.getHash());
+            }
+        }
+        fileWriter.finish();
+        System.out.println("duplicates: " + numberOfDuplicates);
+    }
+
+    public static void fixCoordinateError() {
+
+        EventReader trueValues = new EventReader(FINAL_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME);
+        EventReader wrongValues = new EventReader(FINAL_2_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME);
+
+        Event trueEvent = null;
+        Event wrongEvent = null;
+
+        FileWriter fileWriter = new FileWriter(FINAL_2_SECONDARY_DATA_OUTPUT_WITH_FILE_NAME);
+        fileWriter.start();
+        fileWriter.writeToFile("id\tevent_type\tstart_time\tend_time\tchannel\tbbox\tsfilename\tmfilename\tefilename\n");
+        while((trueEvent = trueValues.next()) != null && (wrongEvent = wrongValues.next()) != null) {
+            if(trueEvent.getId() != wrongEvent.getId()) System.out.println("Huge Problem");
+            wrongEvent.setCoordinateString(trueEvent.getCoordinateString());
+            fileWriter.writeToFile(wrongEvent.toString() + "\n");
+        }
+        fileWriter.finish();
+
+    }
 
 
     public static void test() throws InterruptedException {
