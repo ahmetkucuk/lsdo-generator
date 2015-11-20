@@ -36,7 +36,6 @@ public class Runner {
         new JP2DownloaderService().downloadImageFromFile(args[0], args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]));
         long endTime = System.currentTimeMillis() - startTime;
         System.out.println("Duration: " + (endTime/ (1000 * 60)));
-
     }
 
     public static void downloadFinalImages() {

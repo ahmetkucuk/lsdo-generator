@@ -1,6 +1,7 @@
 package app.utils;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -39,11 +40,18 @@ public class FileWriter {
 
         java.io.FileWriter fStream = null;
         try {
+            createFileDirectoryIfNotExists();
             fStream = new java.io.FileWriter(outputFile, true);
             out = new BufferedWriter(fStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void createFileDirectoryIfNotExists() {
+
+        File f = new File(outputFile);
+        if(!f.exists()) f.getParentFile().mkdirs();
     }
 
     protected void closeFile() {
