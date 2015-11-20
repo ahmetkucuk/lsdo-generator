@@ -50,12 +50,13 @@ public class HttpDownloadUtility {
             // opens input stream from the HTTP connection
             InputStream inputStream = httpConn.getInputStream();
             String saveFilePath = saveDir + File.separator + fileName;
-
-            if(Utilities.isFileExists(saveFilePath)) {
-                inputStream.close();
-                httpConn.disconnect();
-                return fileName;
-            }
+            new File(saveFilePath).getParentFile().mkdirs();
+//
+//            if(Utilities.isFileExists(saveFilePath)) {
+//                inputStream.close();
+//                httpConn.disconnect();
+//                return fileName;
+//            }
 
             // opens an output stream to save into file
             FileOutputStream outputStream = new FileOutputStream(saveFilePath);
@@ -75,14 +76,5 @@ public class HttpDownloadUtility {
         }
         httpConn.disconnect();
         return null;
-    }
-
-    public static void main(String[] args) {
-
-        try {
-            downloadFile("http://helioviewer.org/api/v1/getJP2Image/?date=2014-01-01T23:59:59Z&sourceId=14", "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

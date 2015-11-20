@@ -4,10 +4,7 @@ import app.models.Coordinate;
 import app.models.Event;
 import app.models.EventType;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -20,6 +17,28 @@ public class Utilities {
     private static final String DELIMETER_COOR = ",";
     private static final String DELIMETER_POINT = " ";
 
+
+    public static Set<String> getDownloadedFileNames(String fileName) {
+
+
+        FileInputStream fStream1 = null;
+        BufferedReader reader = null;
+        Set<String> set = new HashSet<>();
+        if(!isFileExists(fileName)) return set;
+
+        try {
+            fStream1 = new FileInputStream(fileName);
+            DataInputStream in = new DataInputStream(fStream1);
+            reader = new BufferedReader(new InputStreamReader(in));
+            String line = null;
+            while((line = reader.readLine()) != null) {
+                set.add(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return set;
+    }
 
     public static boolean isFileExists(String filePathString) {
         File f = new File(filePathString);
@@ -43,6 +62,11 @@ public class Utilities {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-M-dd'T'HH:mm:ss");
         Date date = formatter.parse(dateString);
         return date;
+    }
+
+    public static String getImageSubPath(Date date) {
+        SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy/MM/dd");
+        return "SDO/AIA/" + formatter1.format(date) + "/";
     }
 
     public static String getStringFromDate(Date date) {

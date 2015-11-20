@@ -2,6 +2,8 @@ package app.core;
 
 import app.models.Event;
 import app.utils.*;
+import app.utils.FileWriter;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -20,14 +22,16 @@ import java.util.concurrent.TimeUnit;
 public class JP2Downloader {
 
     public static final String SEPARATOR = "\t";
-    public static final int THREAD_COUNT = 1;
+    public static final int THREAD_COUNT = 10;
     private static ExecutorService executorService;
     private static Set<String> downloadedImageNames;
+
+    private FileWriter errorFileWriter;
+    private FileWriter downloadedImageNameFileWriter;
 
 
     public JP2Downloader() {
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        downloadedImageNames = new HashSet<>();
     }
 
     /**
@@ -37,22 +41,20 @@ public class JP2Downloader {
      * @param limit how many of images should be downloaded.
      * @param waitBetween wait between two consecutive download in order not to be banned, in seconds
      */
-    public void downloadFromInputFile(String inputFile, String eventTimeType, String fileLocation, int limit, int offset, int waitBetween) {
+    public void downloadFromInputFile(String inputFile, String fileLocation, int limit, int offset, int waitBetween) {
 
         EventReader eventReader = new EventReader(inputFile);
+        downloadedImageNames = Utilities.getDownloadedFileNames(fileLocation + "downloaded.txt");
+        initFileWriters(fileLocation);
 
         for(int i = 1; i <= limit + offset; i++) {
 
             Event e = eventReader.next();
+            if(e == null) break;
             if(i >= offset) {
-                executorService.execute(() -> {
-                    try {
-                        downloadForEvent(e, eventTimeType, fileLocation);
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
-                }
-                );
+                executeFor(e, "S", fileLocation, e.getsFileName());
+                executeFor(e, "M", fileLocation, e.getmFileName());
+                executeFor(e, "E", fileLocation, e.geteFileName());
 //                wait(waitBetween);
             }
         }
@@ -60,10 +62,44 @@ public class JP2Downloader {
         try {
             executorService.shutdown();
             executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
+            closeFileWriters();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         System.out.println("Finished All!");
+    }
+
+    private void executeFor(Event e, String s, String fileLocation, String fileName) {
+        if(!downloadedImageNames.contains(fileName)) {
+            executorService.execute(() -> {
+                        try {
+                            downloadForEvent(e, s, fileLocation);
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+            );
+        }
+        downloadedImageNames.add(fileName);
+    }
+
+    private void initFileWriters(String fileLocation) {
+
+        errorFileWriter = new FileWriter(fileLocation + "errors.txt");
+        errorFileWriter.start();
+
+        downloadedImageNameFileWriter = new FileWriter(fileLocation + "downloaded.txt");
+        downloadedImageNameFileWriter.start();
+    }
+
+    private void closeFileWriters() {
+        errorFileWriter.finish();
+        downloadedImageNameFileWriter.finish();
+    }
+
+    private void flushWriters() {
+        errorFileWriter.flush();
+        downloadedImageNameFileWriter.flush();
     }
 
     private void wait(int seconds) {
@@ -100,15 +136,33 @@ public class JP2Downloader {
         url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
 
         try {
-            String downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation);
-            if(!downloadedFileName.equalsIgnoreCase((imageFileName + ".jp2"))) {
-                System.out.println("File Name Error for " + event.toString());
+            String downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate));
+            if(checkIfFailed(downloadedFileName, imageFileName)) {
+                downloadedImageNameFileWriter.writeToFile(imageFileName + "\n");
+                downloadedImageNameFileWriter.flush();
             }
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+            errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\n");
         }
+    }
 
-        System.out.println("Finished for event: " + event.toString());
+    /**
+     *
+     * @param downloadedFileName
+     * @param imageFileName
+     * @return true if not failed
+     * @throws Exception
+     */
+    private boolean checkIfFailed(String downloadedFileName, String imageFileName) throws Exception {
+        if(downloadedFileName == null) {
+            throw new Exception();
+        } else {
+            if(!downloadedFileName.equalsIgnoreCase((imageFileName + ".jp2"))) {
+                throw new Exception("downloaded and assumed file name are not same");
+            }
+        }
+        return true;
     }
 
 

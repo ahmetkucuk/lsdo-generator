@@ -25,11 +25,21 @@ public class FileWriter {
         closeFile();
     }
 
+    public synchronized void flush() {
+        if(out != null) {
+            try {
+                out.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     protected void openWriteFile() {
 
         java.io.FileWriter fStream = null;
         try {
-            fStream = new java.io.FileWriter(outputFile);
+            fStream = new java.io.FileWriter(outputFile, true);
             out = new BufferedWriter(fStream);
         } catch (IOException e) {
             e.printStackTrace();

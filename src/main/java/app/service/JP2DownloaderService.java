@@ -13,9 +13,9 @@ import java.util.List;
  */
 public class JP2DownloaderService {
 
-    public void downloadImageFromFile(String inputFile, String eventTimeType, String outputFileDir, int numberOfItemToDownload, int offset) {
+    public void downloadImageFromFile(String inputFile, String outputFileDir, int numberOfItemToDownload, int offset) {
 
-        new JP2Downloader().downloadFromInputFile(inputFile, eventTimeType, outputFileDir, numberOfItemToDownload, offset, 10);
+        new JP2Downloader().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 10);
 
     }
 
