@@ -64,9 +64,9 @@ public class Utilities {
         return date;
     }
 
-    public static String getImageSubPath(Date date) {
+    public static String getImageSubPath(Date date, String measurement) {
         SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy/MM/dd");
-        return "SDO/AIA/" + formatter1.format(date) + "/";
+        return "SDO/AIA/" + measurement + "/" + formatter1.format(date) + "/";
     }
 
     public static String getStringFromDate(Date date) {

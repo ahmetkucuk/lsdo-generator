@@ -136,7 +136,7 @@ public class JP2Downloader {
         url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
 
         try {
-            String downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate));
+            String downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
             if(checkIfFailed(downloadedFileName, imageFileName)) {
                 downloadedImageNameFileWriter.writeToFile(imageFileName + "\n");
                 downloadedImageNameFileWriter.flush();
