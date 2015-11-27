@@ -134,16 +134,17 @@ public class JP2Downloader {
 
         String eventTime = Utilities.getStringFromDate(eventDate);
         url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
+        String downloadedFileName = "";
 
         try {
-            String downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
+            downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
             if(checkIfFailed(downloadedFileName, imageFileName)) {
                 downloadedImageNameFileWriter.writeToFile(imageFileName + "\n");
                 downloadedImageNameFileWriter.flush();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\n");
+            errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\t" +  downloadedFileName + "\t" + imageFileName + "\n");
             errorFileWriter.flush();
         }
     }
