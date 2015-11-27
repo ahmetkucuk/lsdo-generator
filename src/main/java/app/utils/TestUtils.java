@@ -9,6 +9,8 @@ import app.service.clean.BadRecordCleaner;
 import app.service.clean.RecordCleaner;
 
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.text.ParseException;
 import java.util.*;
 import java.util.List;
@@ -48,17 +50,105 @@ public class TestUtils {
     public static final String EXTRACTED_BAD_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/%s/%s_Bad_Records-extracted.txt";
 
 
+    public static final String SERVER_FILES = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/Server/";
+    public static final String DOWNLOADED = SERVER_FILES + "downloaded.txt";
+    public static final String ALL_FILES = SERVER_FILES + "all_files.txt";
+    public static final String FILES = SERVER_FILES + "files.txt";
+    public static final String FILES5 = SERVER_FILES + "files5.txt";
 
-    public static void totalDifImages() {
-        EventReader eventReader = new EventReader(FINAL_DATA_OUTPUT);
+    public static void main(String[] args) {
+//        totalDifImages(1000000);
+//        findDiff(DOWNLOADED, ALL_FILES, FILES);
+
+
+        differentFileNames();
+    }
+
+    public static void differentFileNames() {
+        Set<String> allRequiredFiles = totalDifImages();
+        System.out.println(allRequiredFiles.size());
+        Set<String> filePaths = new HashSet<>();
+        try (BufferedReader r1 = new BufferedReader(new FileReader(FILES5));) {
+
+            String line = null;
+            while((line = r1.readLine()) != null) {
+                String fName = line.substring(line.lastIndexOf("/") + 1);
+                filePaths.add(fName);
+            }
+            System.out.println(filePaths.size());
+
+            int i = 0;
+            for(String s: allRequiredFiles) {
+                if(!filePaths.contains(s)) {
+                    System.out.println(s);
+                    i++;
+                }
+            }
+            System.out.println(i);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void findDiff(String f1, String f2, String f3) {
+
+        Set<String> downloaded = new HashSet<>();
+        Set<String> files = new HashSet<>();
+        Set<String> difference = new HashSet<>();
+
+        FileWriter fileWriter = new FileWriter(SERVER_FILES + "difference.txt");
+        fileWriter.start();
+
+        try (BufferedReader r1 = new BufferedReader(new FileReader(f1));
+            BufferedReader r3 = new BufferedReader(new FileReader(f3));) {
+
+            String line = null;
+            while((line = r1.readLine()) != null) {
+                downloaded.add(line +  ".jp2");
+            }
+
+
+            while((line = r3.readLine()) != null) {
+                if(!downloaded.contains(line.substring(line.lastIndexOf("/")+1))) {
+                    difference.add(line);
+//                    System.out.println(line);
+                    fileWriter.writeToFile("rm /data4/STORE/" + line + "\n");
+                }
+                files.add(line);
+            }
+
+            System.out.println(difference.size());
+            System.out.println(files.size());
+
+//            for(String s : difference) {
+//                System.out.println(s);
+//            }
+            fileWriter.finish();
+
+        } catch (Exception e) {
+
+        }
+
+
+
+
+    }
+
+    public static Set<String> totalDifImages() {
+        EventReader eventReader = new EventReader(FINAL_SECONDARY_DATA_OUTPUT);
         Set<String> set = new HashSet<>();
         Event e = null;
+        int i = 0;
         while((e = eventReader.next()) != null) {
-            set.add(e.getsFileName());
-            set.add(e.getmFileName());
-            set.add(e.geteFileName());
+            set.add(e.getsFileName() + ".jp2");
+            set.add(e.getmFileName() + ".jp2");
+            set.add(e.geteFileName() + ".jp2");
+            i++;
         }
-        System.out.println(set.size());
+        return set;
     }
 
     public static void drawOnImage() {

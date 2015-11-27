@@ -144,6 +144,7 @@ public class JP2Downloader {
         } catch (Exception e) {
             e.printStackTrace();
             errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\n");
+            errorFileWriter.flush();
         }
     }
 
