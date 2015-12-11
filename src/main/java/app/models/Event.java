@@ -142,7 +142,7 @@ public class Event {
         return sFileName;
     }
 
-    public void setsFileName(String sFileName) {
+    public synchronized void setsFileName(String sFileName) {
         this.sFileName = sFileName;
     }
 
@@ -150,7 +150,7 @@ public class Event {
         return mFileName;
     }
 
-    public void setmFileName(String mFileName) {
+    public synchronized void setmFileName(String mFileName) {
         this.mFileName = mFileName;
     }
 
@@ -158,7 +158,7 @@ public class Event {
         return eFileName;
     }
 
-    public void seteFileName(String eFileName) {
+    public synchronized void seteFileName(String eFileName) {
         this.eFileName = eFileName;
     }
 

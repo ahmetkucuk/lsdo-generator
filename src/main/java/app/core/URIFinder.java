@@ -35,10 +35,7 @@ public class URIFinder {
         Event event = null;
         int counter = 0;
 
-
-
         List<Event> eventList = new ArrayList<>();
-        List<Future<HttpResponse<String>>> futureList = new ArrayList<>();
 
         while((event = eventReader.next()) != null) {
 
@@ -54,34 +51,25 @@ public class URIFinder {
             event.setmFileName(cutFromLastSlash(getFileName(mFileUrl)));
             event.seteFileName(cutFromLastSlash(getFileName(eFileUrl)));
 
-//            executor.submit(generateRunnable(sFileUrl, "S", event));
-//            executor.submit(generateRunnable(mFileUrl, "M", event));
-//            executor.submit(generateRunnable(eFileUrl, "E", event));
-            futureList.add(findAndSetFileName(sFileUrl, "S", event));
-            futureList.add(findAndSetFileName(mFileUrl, "M", event));
-            futureList.add(findAndSetFileName(eFileUrl, "E", event));
-
-            if(futureList.size() >= 15) {
-                waitUntilAllDone(futureList);
-//                waitUntilOneDone(futureList);
-            }
+            executor.submit(generateRunnable(sFileUrl, "S", event));
+            executor.submit(generateRunnable(mFileUrl, "M", event));
+            executor.submit(generateRunnable(eFileUrl, "E", event));
             counter++;
         }
         System.out.println("finished creating threads");
-//
-//        try {
-//            executor.shutdown();
-//            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
 
+        try {
+            executor.shutdown();
+            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         FileWriter writer = new FileWriter(outputFile);
         writer.start();
         writer.writeToFile("id\tevent_type\tstart_time\tend_time\tchannel\tbbox\tsfilename\tmfilename\tefilename\n");
         for(Event e : eventList) {
-            writer.writeToFile(e.toString() + "\t" + e.getsFileName() + "\t" + e.getmFileName() + "\t" + e.geteFileName() + "\n");
+            writer.writeToFile(e.toString() + "\n");
         }
         writer.finish();
     }

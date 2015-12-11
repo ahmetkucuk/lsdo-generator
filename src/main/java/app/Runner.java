@@ -29,7 +29,7 @@ public class Runner {
     public static final String EVENT_SECONDARY_INPUT_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt";
     public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/";
 
-    static String[] arg = new String[] {EVENT_INPUT_FILE, FINAL_DATA_IMAGE_OUTPUT, "100", "10000"};
+    static String[] arg = new String[] {EVENT_SECONDARY_INPUT_FILE, FINAL_DATA_IMAGE_OUTPUT, "10", "0"};
     public static void main(String[] args) throws Exception {
 
         System.out.println("Start with args: \t" + args[0] + "\t" + args[1] + "\t" + args[2] + "\t" + args[3]);

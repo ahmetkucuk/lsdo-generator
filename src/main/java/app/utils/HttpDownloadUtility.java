@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Set;
 
 /**
  * A utility that downloads a file from a URL.
@@ -21,7 +22,7 @@ public class HttpDownloadUtility {
      * @param saveDir path of the directory to save the file
      * @throws IOException
      */
-    public static String downloadFile(String fileURL, String saveDir)
+    public static String downloadFile(FileWriter downloadedImageNameFileWriter, Set<String> alreadyDownloaded, String fileURL, String saveDir)
             throws IOException {
         URL url = new URL(fileURL);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
@@ -45,6 +46,15 @@ public class HttpDownloadUtility {
                 // extracts file name from URL
                 fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1,
                         fileURL.length());
+            }
+
+            if(alreadyDownloaded.contains(fileName)) {
+                httpConn.disconnect();
+                return fileName;
+            } else {
+                downloadedImageNameFileWriter.writeToFile(fileName + "\n");
+                downloadedImageNameFileWriter.flush();
+                alreadyDownloaded.add(fileName);
             }
 
             // opens input stream from the HTTP connection

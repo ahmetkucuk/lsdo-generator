@@ -2,6 +2,7 @@ package app.utils;
 
 import app.core.DrawPolygonOnImage;
 import app.core.JP2Downloader;
+import app.core.URIFinder;
 import app.models.Coordinate;
 import app.models.Event;
 import app.models.EventType;
@@ -9,8 +10,7 @@ import app.service.clean.BadRecordCleaner;
 import app.service.clean.RecordCleaner;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.text.ParseException;
 import java.util.*;
 import java.util.List;
@@ -51,21 +51,210 @@ public class TestUtils {
 
 
     public static final String SERVER_FILES = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/Server/";
-    public static final String DOWNLOADED = SERVER_FILES + "downloaded.txt";
-    public static final String ALL_FILES = SERVER_FILES + "all_files.txt";
-    public static final String FILES = SERVER_FILES + "files.txt";
+    public static final String EVENTS = SERVER_FILES + "events.txt";
+    public static final String EVENTS_SECONDARY = SERVER_FILES + "events_secondary.txt";
+    public static final String EVENTS_SECONDARY_NEW_FILENAME = SERVER_FILES + "events_secondary_new_filename.txt";
+
+    public static final String JP2_EVENTS = SERVER_FILES + "jp2_events.txt";
+    public static final String JP2_EVENTS_SECONDARY = SERVER_FILES + "jp2_events_secondary.txt";
+
     public static final String FILES5 = SERVER_FILES + "files5.txt";
+
+    public static final String SIZE_OF_FILES = SERVER_FILES + "events_file_name_with_size.txt";
+    public static final String SIZE_OF_FILES_SECONDARY = SERVER_FILES + "events_file_name_with_size_secondary.txt";
 
     public static void main(String[] args) {
 //        totalDifImages(1000000);
 //        findDiff(DOWNLOADED, ALL_FILES, FILES);
 
 
-        differentFileNames();
+//        differentFileNames();
+//        clearFile();
+
+//        changeWrong();
+//        count(FINAL_DATA_OUTPUT);
+//        count(FINAL_SECONDARY_DATA_OUTPUT);
+//        fileSize(SIZE_OF_FILES);
+//        isAllExist();
+//        getFileNames();
+    }
+
+    public static void getFileNames() {
+        new URIFinder().getJPIPUriNameFromFile(EVENTS_SECONDARY, EVENTS_SECONDARY_NEW_FILENAME);
+    }
+
+    public static void isAllExist() {
+        Set<String> events = totalDifImages(EVENTS);
+        Set<String> events_secondary = totalDifImages(EVENTS_SECONDARY);
+        Set<String> jp2_events = fileAsSet(JP2_EVENTS);
+        Set<String> jp2_events_secondary = fileAsSet(JP2_EVENTS_SECONDARY);
+        System.out.println("Events Size: " + events.size());
+        System.out.println("Events Secondary Size: " + events_secondary.size());
+        System.out.println("Downloaded JP2 Events Size: " + jp2_events.size());
+        System.out.println("Downloaded JP2 Events Secondary Size: " + jp2_events_secondary.size());
+
+
+        int countDiff1 = 0;
+        for(String s : events) {
+            if(!jp2_events.contains(s)) {
+//                System.out.println(s);
+                countDiff1++;
+            }
+        }
+
+        int countDiff2 = 0;
+
+        for(String s : events_secondary) {
+            if(!jp2_events_secondary.contains(s)) {
+//                System.out.println(s);
+                countDiff2++;
+            }
+        }
+
+        System.out.println(countDiff1 + " " + countDiff2);
+
+
+    }
+
+    public static Set<String> fileAsSet(String fileName) {
+
+        Set<String> result = new HashSet<>();
+        try(BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+
+            String line = null;
+
+            int counter = 0;
+            while((line = reader.readLine()) != null) {
+                result.add(line);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static void fileSize(String fileName) {
+
+        try(BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+
+            String line = null;
+
+            int counter = 0;
+            while((line = reader.readLine()) != null) {
+                String[] tuples = line.split(" ");
+                if(!tuples[0].equalsIgnoreCase("1.1M")) {
+                    System.out.println(tuples[0]);
+                    System.out.println("rm " + tuples[1]);
+                    counter++;
+                }
+            }
+            System.out.println(counter);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void count(String f) {
+
+        EventReader eventReader = new EventReader(f);
+        Event e = null;
+
+        Map<EventType, Integer> eventCount = new HashMap<>();
+
+        int all = 0;
+        while((e = eventReader.next()) != null) {
+            if(!eventCount.containsKey(e.getEventType())) {
+                eventCount.put(e.getEventType(), 1);
+            } else {
+                eventCount.put(e.getEventType(), eventCount.get(e.getEventType()) + 1);
+            }
+            all++;
+        }
+        System.out.println(all + " " + eventCount);
+
+    }
+
+    static class ErrorEvent {
+        public int eventid;
+        public String eventTimeType;
+        public String downloaded;
+        public String actual;
+    }
+
+    public static void changeWrong() {
+
+        FileWriter writer = new FileWriter(SERVER_FILES + "event_secondary_2.txt");
+        writer.start();
+        Map<Integer, ErrorEvent> errorEventsS = new HashMap<>();
+        Map<Integer, ErrorEvent> errorEventsM = new HashMap<>();
+        Map<Integer, ErrorEvent> errorEventsE = new HashMap<>();
+        EventReader reader = new EventReader("/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt");
+        try(BufferedReader r = new BufferedReader(new FileReader(SERVER_FILES + "errors.txt"))) {
+
+            String line = null;
+            while((line = r.readLine()) != null) {
+                String[] a = line.split("\t");
+                ErrorEvent errorEvent = new ErrorEvent();
+                errorEvent.eventid = Integer.parseInt(a[0]);
+                errorEvent.eventTimeType = a[1];
+                errorEvent.downloaded = a[2].substring(0, a[2].length() - 4);
+                System.out.println(errorEvent.downloaded);
+                errorEvent.actual = a[3];
+                if(errorEvent.eventTimeType.equalsIgnoreCase("S")) {
+                    errorEventsS.put(errorEvent.eventid, errorEvent);
+                } else if(errorEvent.eventTimeType.equalsIgnoreCase("M")) {
+                    errorEventsM.put(errorEvent.eventid, errorEvent);
+                } else if(errorEvent.eventTimeType.equalsIgnoreCase("E")) {
+                    errorEventsE.put(errorEvent.eventid, errorEvent);
+                }
+            }
+            Event e = null;
+            while((e = reader.next()) != null) {
+                if(errorEventsS.containsKey(e.getId())) {
+                    e.setsFileName(errorEventsS.get(e.getId()).downloaded);
+                    writer.writeToFile(e.toString() + "\n");
+                } else if(errorEventsM.containsKey(e.getId())) {
+                    e.setmFileName(errorEventsM.get(e.getId()).downloaded);
+                    writer.writeToFile(e.toString() + "\n");
+                } else if(errorEventsE.containsKey(e.getId())) {
+                    e.seteFileName(errorEventsE.get(e.getId()).downloaded);
+                    writer.writeToFile(e.toString() + "\n");
+                } else {
+                    writer.writeToFile(e.toString() + "\n");
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        writer.finish();
+    }
+
+    public static void clearFile() {
+
+        FileWriter writer = new FileWriter(SERVER_FILES + "downloaded2.txt");
+        writer.start();
+        try(BufferedReader r = new BufferedReader(new FileReader(SERVER_FILES + "files_remaining.txt"))) {
+
+            String line = null;
+            while((line = r.readLine()) != null) {
+                writer.writeToFile(line.substring(line.lastIndexOf("/")+1, line.length() - 4) + "\n");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        writer.finish();
     }
 
     public static void differentFileNames() {
-        Set<String> allRequiredFiles = totalDifImages();
+        Set<String> allRequiredFiles = totalDifImages(SERVER_FILES);
         System.out.println(allRequiredFiles.size());
         Set<String> filePaths = new HashSet<>();
         try (BufferedReader r1 = new BufferedReader(new FileReader(FILES5));) {
@@ -131,14 +320,10 @@ public class TestUtils {
         } catch (Exception e) {
 
         }
-
-
-
-
     }
 
-    public static Set<String> totalDifImages() {
-        EventReader eventReader = new EventReader(FINAL_SECONDARY_DATA_OUTPUT);
+    public static Set<String> totalDifImages(String fileName) {
+        EventReader eventReader = new EventReader(fileName);
         Set<String> set = new HashSet<>();
         Event e = null;
         int i = 0;
