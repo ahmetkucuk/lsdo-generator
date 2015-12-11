@@ -3,7 +3,6 @@ package app.utils;
 import app.models.Coordinate;
 import app.models.Event;
 import app.models.EventType;
-import com.google.common.collect.Sets;
 
 import java.io.*;
 import java.text.ParseException;
@@ -24,7 +23,7 @@ public class Utilities {
 
         FileInputStream fStream1 = null;
         BufferedReader reader = null;
-        Set<String> set = Sets.newConcurrentHashSet();
+        Set<String> set = new HashSet<>();
         if(!isFileExists(fileName)) return set;
 
         try {
