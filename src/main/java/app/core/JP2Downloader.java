@@ -146,7 +146,7 @@ public class JP2Downloader {
         String downloadedFileName = "";
 
         try {
-            downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNameFileWriter, downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
+            downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()), true);
             if(downloadedFileName == null || downloadedFileName.length() < 5) {
                 errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\t" +  downloadedFileName + "\t" + imageFileName + "\n");
                 errorFileWriter.flush();
@@ -197,7 +197,7 @@ public class JP2Downloader {
         String downloadedFileName = "";
 
         try {
-            downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNameFileWriter, downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
+            downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()), false);
             if(checkIfFailed(downloadedFileName, imageFileName)) {
                 downloadedImageNameFileWriter.writeToFile(imageFileName + "\n");
                 downloadedImageNameFileWriter.flush();

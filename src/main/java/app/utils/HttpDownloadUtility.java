@@ -22,7 +22,7 @@ public class HttpDownloadUtility {
      * @param saveDir path of the directory to save the file
      * @throws IOException
      */
-    public static String downloadFile(FileWriter downloadedImageNameFileWriter, Set<String> alreadyDownloaded, String fileURL, String saveDir)
+    public static String downloadFile(String fileURL, String saveDir, boolean onlyGetName)
             throws IOException {
         URL url = new URL(fileURL);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
@@ -48,13 +48,9 @@ public class HttpDownloadUtility {
                         fileURL.length());
             }
 
-            if(alreadyDownloaded.contains(fileName)) {
+            if(onlyGetName) {
                 httpConn.disconnect();
                 return fileName;
-            } else {
-                downloadedImageNameFileWriter.writeToFile(fileName + "\n");
-                downloadedImageNameFileWriter.flush();
-                alreadyDownloaded.add(fileName);
             }
 
             // opens input stream from the HTTP connection
