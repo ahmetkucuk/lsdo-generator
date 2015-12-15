@@ -33,7 +33,7 @@ public class Event {
 
     public Date getMiddleDate() {
         if(startDate == null || endDate == null) {
-            System.err.println("Essential paramaters are null. This will change the behaviour of software");
+            System.err.println("Essential parameters are null. This will change the behaviour of software");
             return startDate;
         }
 

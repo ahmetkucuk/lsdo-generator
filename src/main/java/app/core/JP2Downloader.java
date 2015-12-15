@@ -2,36 +2,28 @@ package app.core;
 
 import app.models.Event;
 import app.utils.*;
-import app.utils.FileWriter;
-import org.apache.log4j.Logger;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 /**
- * Created by ahmetkucuk on 27/09/15.
+ * Created by ahmetkucuk on 10/12/15.
  */
 public class JP2Downloader {
 
-    public static final String SEPARATOR = "\t";
-    public static final int THREAD_COUNT = 10;
-    private static ExecutorService executorService;
+
+    private static final String IMAGE_FILENAME_FILE = "jp2_files.txt";
+    private static final String ERROR_FILE = "error.txt";
+    private static final String NEW_EVENT_FILE = "new_event_records.txt";
+
     private static Set<String> downloadedImageNames;
 
+
     private FileWriter errorFileWriter;
-    private FileWriter eventRecords;
+    private FileWriter newEventRecords;
     private FileWriter downloadedImageNameFileWriter;
-
-
-    public JP2Downloader() {
-        executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-    }
 
     /**
      *
@@ -43,209 +35,80 @@ public class JP2Downloader {
     public void downloadFromInputFile(String inputFile, String fileLocation, int limit, int offset, int waitBetween) {
 
         EventReader eventReader = new EventReader(inputFile);
-        downloadedImageNames = Utilities.getDownloadedFileNames(fileLocation + "downloaded.txt");
+        downloadedImageNames = Utilities.getDownloadedFileNames(fileLocation + IMAGE_FILENAME_FILE);
         initFileWriters(fileLocation);
 
-        List<Event> events = new ArrayList<>();
         for(int i = 0; i <= limit + offset; i++) {
 
             Event e = eventReader.next();
-            events.add(e);
             if(e == null) break;
             if(i >= offset) {
-                executeFor(e, "S", fileLocation, e.getsFileName());
-                executeFor(e, "M", fileLocation, e.getmFileName());
-                executeFor(e, "E", fileLocation, e.geteFileName());
+                try {
+                    downloadForEventSetFileName(e, "S", e.getStartDate(), fileLocation);
+                    downloadForEventSetFileName(e, "M", e.getMiddleDate(), fileLocation);
+                    downloadForEventSetFileName(e, "E", e.getEndDate(), fileLocation);
+                    newEventRecords.writeToFile(e.toString() + "\n");
+                    newEventRecords.flush();
+                } catch (Exception e1) {
+                    errorFileWriter.writeToFile(e + "\n");
+                    errorFileWriter.flush();
+                    e1.printStackTrace();
+                }
             }
         }
-        System.out.println("Finished Creating Thread");
-        try {
-            executorService.shutdown();
-            executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
-            for(Event e : events) {
-                eventRecords.writeToFile(e.toString() + "\n");
+
+        closeFileWriters();
+    }
+
+    public void downloadForEventSetFileName(Event event, String eventTimeType, Date eventDate, String fileLocation) throws Exception{
+
+        //event.getStartDate will be changed according to eventTimeType
+
+        String eventTime = Utilities.getStringFromDate(eventDate);
+        String url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
+
+        String downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
+        if(downloadedFileName != null && downloadedFileName.length() > 5) {
+            switch (eventTimeType) {
+                case "S":
+                    event.setsFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
+                    break;
+                case "M":
+                    event.setmFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
+                    break;
+                case "E":
+                    event.seteFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
+                    break;
             }
-
-            closeFileWriters();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            downloadedImageNameFileWriter.writeToFile(downloadedFileName + "\n");
+            downloadedImageNameFileWriter.flush();
+        } else {
+            throw new Exception("downloaded file name problem");
         }
-        System.out.println("Finished All!");
     }
 
-    private void executeFor(Event e, String s, String fileLocation, String fileName) {
-//        if(!downloadedImageNames.contains(fileName)) {
-            executorService.execute(() -> {
-                        try {
-//                            downloadForEvent(e, s, fileLocation);
-                            downloadForEventSetFileName(e, s, fileLocation);
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-            );
-//        }
-//        downloadedImageNames.add(fileName);
-    }
 
     private void initFileWriters(String fileLocation) {
 
-        errorFileWriter = new FileWriter(fileLocation + "errors.txt");
-        eventRecords = new FileWriter(fileLocation + "new_event_records.txt");
-        eventRecords.start();
-        errorFileWriter.start();
+        errorFileWriter = new FileWriter(fileLocation + ERROR_FILE);
+        newEventRecords = new FileWriter(fileLocation + NEW_EVENT_FILE);
+        downloadedImageNameFileWriter = new FileWriter(fileLocation + IMAGE_FILENAME_FILE);
 
-        downloadedImageNameFileWriter = new FileWriter(fileLocation + "downloaded.txt");
+        newEventRecords.start();
+        errorFileWriter.start();
         downloadedImageNameFileWriter.start();
     }
 
     private void closeFileWriters() {
         errorFileWriter.finish();
         downloadedImageNameFileWriter.finish();
-        eventRecords.finish();
+        newEventRecords.finish();
     }
 
     private void flushWriters() {
         errorFileWriter.flush();
         downloadedImageNameFileWriter.flush();
-        eventRecords.flush();
+        newEventRecords.flush();
     }
 
-    private void wait(int seconds) {
-
-        try {
-            Thread.sleep(seconds * 1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void downloadForEventSetFileName(Event event, String eventTimeType, String fileLocation) {
-
-        //event.getStartDate will be changed according to eventTimeType
-        String url = "";
-        Date eventDate = null;
-        String imageFileName = null;
-        switch (eventTimeType) {
-            case "S":
-                eventDate = event.getStartDate();
-                imageFileName = event.getsFileName();
-                break;
-            case "M":
-                eventDate = event.getMiddleDate();
-                imageFileName = event.getmFileName();
-                break;
-            case "E":
-                eventDate = event.getEndDate();
-                imageFileName = event.geteFileName();
-                break;
-        }
-
-        String eventTime = Utilities.getStringFromDate(eventDate);
-        url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
-        String downloadedFileName = "";
-
-        try {
-            downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()), true);
-            if(downloadedFileName == null || downloadedFileName.length() < 5) {
-                errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\t" +  downloadedFileName + "\t" + imageFileName + "\n");
-                errorFileWriter.flush();
-            } else {
-                switch (eventTimeType) {
-                    case "S":
-                        event.setsFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
-                        break;
-                    case "M":
-                        event.setmFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
-                        break;
-                    case "E":
-                        event.seteFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
-                        break;
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\t" +  downloadedFileName + "\t" + imageFileName + "\n");
-            errorFileWriter.flush();
-        }
-    }
-
-    public void downloadForEvent(Event event, String eventTimeType, String fileLocation) {
-
-        //event.getStartDate will be changed according to eventTimeType
-        String url = "";
-        Date eventDate = null;
-        String imageFileName = null;
-        switch (eventTimeType) {
-            case "S":
-                eventDate = event.getStartDate();
-                imageFileName = event.getsFileName();
-                break;
-            case "M":
-                eventDate = event.getMiddleDate();
-                imageFileName = event.getmFileName();
-                break;
-            case "E":
-                eventDate = event.getEndDate();
-                imageFileName = event.geteFileName();
-                break;
-        }
-
-        String eventTime = Utilities.getStringFromDate(eventDate);
-        url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
-        String downloadedFileName = "";
-
-        try {
-            downloadedFileName = HttpDownloadUtility.downloadFile(url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()), false);
-            if(checkIfFailed(downloadedFileName, imageFileName)) {
-                downloadedImageNameFileWriter.writeToFile(imageFileName + "\n");
-                downloadedImageNameFileWriter.flush();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            errorFileWriter.writeToFile(event.getId() + "\t" + eventTimeType + "\t" +  downloadedFileName + "\t" + imageFileName + "\n");
-            errorFileWriter.flush();
-        }
-    }
-
-    /**
-     *
-     * @param downloadedFileName
-     * @param imageFileName
-     * @return true if not failed
-     * @throws Exception
-     */
-    private boolean checkIfFailed(String downloadedFileName, String imageFileName) throws Exception {
-        if(downloadedFileName == null) {
-            throw new Exception();
-        } else {
-            if(!downloadedFileName.equalsIgnoreCase((imageFileName))) {
-                throw new Exception("downloaded and assumed file name are not same");
-            }
-        }
-        return true;
-    }
-
-
-//
-//    public void downloadImage(String sourceUrl, String targetDirectory, String targetFileName)
-//            throws IOException
-//    {
-//        URL imageUrl = new URL(sourceUrl);
-//        try (InputStream imageReader = new BufferedInputStream(
-//                imageUrl.openStream());
-//             OutputStream imageWriter = new BufferedOutputStream(
-//                     new FileOutputStream(targetDirectory + File.separator
-//                             + targetFileName));)
-//        {
-//
-//            int readByte;
-//
-//            while ((readByte = imageReader.read()) != -1)
-//            {
-//                imageWriter.write(readByte);
-//            }
-//        }
-//    }
 }

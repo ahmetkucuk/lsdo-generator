@@ -1,9 +1,7 @@
 package app.service;
 
 import app.core.DrawPolygonOnImage;
-import app.core.JP2Downloader;
 import app.models.Event;
-import app.utils.Constants;
 import app.utils.Utilities;
 
 import java.text.ParseException;

@@ -22,7 +22,7 @@ public class HttpDownloadUtility {
      * @param saveDir path of the directory to save the file
      * @throws IOException
      */
-    public static String downloadFile(String fileURL, String saveDir, boolean onlyGetName)
+    public static String downloadFile(Set<String> downloadedFiles, String fileURL, String saveDir)
             throws IOException {
         URL url = new URL(fileURL);
         HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
@@ -48,7 +48,12 @@ public class HttpDownloadUtility {
                         fileURL.length());
             }
 
-            if(onlyGetName) {
+            if(fileName == null || !fileName.contains(".jp2")) {
+                httpConn.disconnect();
+                return null;
+            }
+
+            if(downloadedFiles.contains(fileName)) {
                 httpConn.disconnect();
                 return fileName;
             }

@@ -1,6 +1,7 @@
 package app.service;
 
 import app.core.JP2Downloader;
+import app.core.JP2DownloaderParallel;
 import app.models.Event;
 import app.utils.EventReader;
 import app.utils.Utilities;
@@ -13,9 +14,13 @@ import java.util.List;
  */
 public class JP2DownloaderService {
 
-    public void downloadImageFromFile(String inputFile, String outputFileDir, int numberOfItemToDownload, int offset) {
+    public void downloadImageFromFile(String inputFile, String outputFileDir, int numberOfItemToDownload, int offset, int parallel) {
 
-        new JP2Downloader().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 10);
+        if(parallel  == 0) {
+            new JP2Downloader().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 10);
+        } else {
+            new JP2DownloaderParallel().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 10);
+        }
 
     }
 
@@ -27,7 +32,7 @@ public class JP2DownloaderService {
                 if(events.size() > 1) {
                     System.out.println("More than one event found");
                 }
-                new JP2Downloader().downloadForEvent(events.get(0), "S", outputFileLocation);
+                new JP2DownloaderParallel().downloadForEvent(events.get(0), "S", outputFileLocation);
             } else {
                 System.out.println("Could not find event for time: " + time);
             }
@@ -46,7 +51,7 @@ public class JP2DownloaderService {
         }
 
         if(event != null) {
-            new JP2Downloader().downloadForEvent(event, "S", outputFileLocation);
+            new JP2DownloaderParallel().downloadForEvent(event, "S", outputFileLocation);
         } else {
             System.out.println("Could not find event for time: " + id);
         }

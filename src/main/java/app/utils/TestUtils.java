@@ -1,7 +1,6 @@
 package app.utils;
 
 import app.core.DrawPolygonOnImage;
-import app.core.JP2Downloader;
 import app.core.URIFinder;
 import app.models.Coordinate;
 import app.models.Event;
