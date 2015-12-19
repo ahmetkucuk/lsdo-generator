@@ -88,9 +88,7 @@ public class JP2Downloader {
             return;
         }
 
-
         String downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
-
 
         if(downloadedFileName != null && downloadedFileName.length() > 5) {
             downloadedImageNameFileWriter.writeToFile(downloadedFileName + "\n");
@@ -98,17 +96,17 @@ public class JP2Downloader {
             downloadedImageNames.add(downloadedFileName);
             switch (eventTimeType) {
                 case "S":
-                    if((event.getsFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
+                    if(!(event.getsFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
                        throw new Exception("wrong file name");
                     }
                     break;
                 case "M":
-                    if((event.getmFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
+                    if(!(event.getmFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
                         throw new Exception("wrong file name");
                     }
                     break;
                 case "E":
-                    if((event.geteFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
+                    if(!(event.geteFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
                         throw new Exception("wrong file name");
                     }
                     break;
