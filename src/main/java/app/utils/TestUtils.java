@@ -11,6 +11,7 @@ import app.service.clean.RecordCleaner;
 import java.awt.*;
 import java.io.*;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -50,6 +51,8 @@ public class TestUtils {
 
 
     public static final String SERVER_FILES = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/Server/";
+    public static final String SECONDARY_FOLDER = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/Server/secondary_events/";
+    public static final String EVENTS_FOLDER = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/Server/events/";
     public static final String EVENTS = SERVER_FILES + "events.txt";
     public static final String EVENTS_SECONDARY = SERVER_FILES + "events_secondary.txt";
     public static final String EVENTS_SECONDARY_NEW_FILENAME = SERVER_FILES + "events_secondary_new_filename.txt";
@@ -76,6 +79,83 @@ public class TestUtils {
 //        fileSize(SIZE_OF_FILES);
 //        isAllExist();
 //        getFileNames();
+//        something();
+//        checkDiff();
+        testImageFileName();
+    }
+
+    public static void testImageFileName() {
+
+        EventReader reader = new EventReader(SECONDARY_FOLDER + "final_events_secondary.txt");
+
+        Event e = null;
+        long max = 0;
+        int count = 0;
+        while((e = reader.next()) != null) {
+            Date start = imageNameToDate(e.getsFileName());
+            Date mid = imageNameToDate(e.getmFileName());
+            Date end = imageNameToDate(e.geteFileName());
+            long temp = Math.abs((start.getTime() - e.getStartDate().getTime())/(1000 * 60));
+            if(max < temp)
+                max = temp;
+            if(Math.abs((mid.getTime() - e.getMiddleDate().getTime())/(1000 * 60)) > 0) {
+//                System.out.println(start);
+                count++;
+//                System.out.println(e.toString());
+            }
+        }
+        System.out.println(count);
+
+    }
+
+    public static void checkDiff() {
+        Set<String> totalDiff = totalDifImages(EVENTS_FOLDER + "events.txt");
+
+//        System.out.println(totalDiff.size());
+        Set<String> downloaded = fileAsSet(EVENTS_FOLDER + "abc.txt");
+        int count = 0;
+        for(String s: totalDiff) {
+            if(!downloaded.contains(s)) {
+//                System.out.println("problem with " + s);
+                count++;
+            }
+        }
+        System.out.println(count);
+    }
+
+    public static Date imageNameToDate(String imageName) {
+//        String[] dates = imageName.split("_");
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy_M_dd'__'HH_mm_ss_SSS");
+        try {
+            return formatter.parse(imageName.substring(0, 23));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+
+    public static void something() {
+
+        EventReader reader = new EventReader(SECONDARY_FOLDER + "final_events_secondary.txt");
+        Map<Integer, Event> allEvents = new TreeMap<>();
+        Set<Integer> set = new HashSet<>();
+        Event event = null;
+        while((event = reader.next()) != null) {
+            set.add(event.getId());
+            allEvents.put(event.getId(), event);
+        }
+        System.out.println(set.size());
+
+        FileWriter writer = new FileWriter(SECONDARY_FOLDER + "final_events_secondary.txt");
+        writer.start();
+        writer.writeToFile("headers" + "\n");
+        for(Map.Entry<Integer, Event> entry : allEvents.entrySet()) {
+            writer.writeToFile(entry.getValue().toString() + "\n");
+        }
+        writer.closeFile();
     }
 
     public static void getFileNames() {

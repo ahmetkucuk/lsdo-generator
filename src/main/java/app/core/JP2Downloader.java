@@ -3,10 +3,7 @@ package app.core;
 import app.models.Event;
 import app.utils.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by ahmetkucuk on 10/12/15.
@@ -47,17 +44,24 @@ public class JP2Downloader {
                     downloadForEventSetFileName(e, "S", e.getStartDate(), fileLocation);
                     downloadForEventSetFileName(e, "M", e.getMiddleDate(), fileLocation);
                     downloadForEventSetFileName(e, "E", e.getEndDate(), fileLocation);
-                    newEventRecords.writeToFile(e.toString() + "\n");
-                    newEventRecords.flush();
                 } catch (Exception e1) {
                     errorFileWriter.writeToFile(e + "\n");
                     errorFileWriter.flush();
                     e1.printStackTrace();
                 }
             }
+
         }
 
         closeFileWriters();
+    }
+
+    public void waitSeconds(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void downloadForEventSetFileName(Event event, String eventTimeType, Date eventDate, String fileLocation) throws Exception{
@@ -67,21 +71,48 @@ public class JP2Downloader {
         String eventTime = Utilities.getStringFromDate(eventDate);
         String url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
 
+        String eventFileName = "";
+        switch (eventTimeType) {
+            case "S":
+                eventFileName = event.getsFileName();
+                break;
+            case "M":
+                eventFileName = event.getmFileName();
+                break;
+            case "E":
+                eventFileName = event.geteFileName();
+                break;
+        }
+
+        if(downloadedImageNames.contains(eventFileName + ".jp2")) {
+            return;
+        }
+
+
         String downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
+
+
         if(downloadedFileName != null && downloadedFileName.length() > 5) {
-            switch (eventTimeType) {
-                case "S":
-                    event.setsFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
-                    break;
-                case "M":
-                    event.setmFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
-                    break;
-                case "E":
-                    event.seteFileName(downloadedFileName.substring(0, downloadedFileName.length() - 4));
-                    break;
-            }
             downloadedImageNameFileWriter.writeToFile(downloadedFileName + "\n");
             downloadedImageNameFileWriter.flush();
+            downloadedImageNames.add(downloadedFileName);
+            switch (eventTimeType) {
+                case "S":
+                    if((event.getsFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
+                       throw new Exception("wrong file name");
+                    }
+                    break;
+                case "M":
+                    if((event.getmFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
+                        throw new Exception("wrong file name");
+                    }
+                    break;
+                case "E":
+                    if((event.geteFileName() + ".jp2").equalsIgnoreCase(downloadedFileName)) {
+                        throw new Exception("wrong file name");
+                    }
+                    break;
+            }
         } else {
             throw new Exception("downloaded file name problem");
         }

@@ -16,10 +16,10 @@ public class JP2DownloaderService {
 
     public void downloadImageFromFile(String inputFile, String outputFileDir, int numberOfItemToDownload, int offset, int parallel) {
 
-        if(parallel  == 0) {
-            new JP2Downloader().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 10);
+        if(parallel == 0) {
+            new JP2Downloader().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 3);
         } else {
-            new JP2DownloaderParallel().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 10);
+            new JP2DownloaderParallel().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 3);
         }
 
     }
