@@ -14,47 +14,23 @@ import java.util.List;
  */
 public class JP2DownloaderService {
 
-    public void downloadImageFromFile(String inputFile, String outputFileDir, int numberOfItemToDownload, int offset, int parallel) {
+    /**
+     * Main donwloader function
+     *
+     * @param inputFile
+     * @param outputFileDir
+     * @param numberOfItemToDownload
+     * @param offset
+     * @param parallel
+     */
+    public void downloadImageFromFile(String inputFile, String outputFileDir, int numberOfItemToDownload, int offset, boolean parallel) {
 
-        if(parallel == 0) {
-            new JP2Downloader().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 3);
+        if(parallel) {
+            new JP2DownloaderParallel(inputFile, outputFileDir).downloadFromInputFile(numberOfItemToDownload, offset, 3);
         } else {
-            new JP2DownloaderParallel().downloadFromInputFile(inputFile, outputFileDir, numberOfItemToDownload, offset, 3);
+            new JP2Downloader(inputFile, outputFileDir).downloadFromInputFile(numberOfItemToDownload, offset, 3);
         }
 
-    }
-
-    public void downloadByTime(String inputFile, String outputFileLocation, String time) {
-
-        try {
-            List<Event> events = Utilities.getEventByTime(inputFile, time);
-            if(events.size() == 0) {
-                if(events.size() > 1) {
-                    System.out.println("More than one event found");
-                }
-                new JP2DownloaderParallel().downloadForEvent(events.get(0), "S", outputFileLocation);
-            } else {
-                System.out.println("Could not find event for time: " + time);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void downloadById(String inputFile, String outputFileLocation, int id) {
-
-        EventReader reader = new EventReader(inputFile);
-        Event event = null;
-        while((event = reader.next()) != null) {
-            if(event.getId() == id)
-                break;
-        }
-
-        if(event != null) {
-            new JP2DownloaderParallel().downloadForEvent(event, "S", outputFileLocation);
-        } else {
-            System.out.println("Could not find event for time: " + id);
-        }
     }
 
 }

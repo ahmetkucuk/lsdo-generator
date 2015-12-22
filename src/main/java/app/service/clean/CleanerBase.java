@@ -5,6 +5,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 /**
+ *
+ * This class is designed to clean Records
+ *
  * Created by ahmetkucuk on 21/10/15.
  */
 public class CleanerBase {

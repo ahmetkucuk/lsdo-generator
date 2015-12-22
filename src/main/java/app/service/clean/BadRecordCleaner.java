@@ -3,6 +3,8 @@ package app.service.clean;
 import java.io.*;
 
 /**
+ *
+ * This class is designed to clean Bad Records which is create by QueryHEK
  * Created by ahmetkucuk on 21/10/15.
  */
 public class BadRecordCleaner extends CleanerBase{

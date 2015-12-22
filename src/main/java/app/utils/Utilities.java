@@ -81,17 +81,27 @@ public class Utilities {
         List result = new ArrayList();
         SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = dateFormatter.parse(eventTime);
-        System.out.println(date);
-        EventFileReader.init(inputFile);
+        EventReader reader = new EventReader(inputFile);
         Event event = null;
-        while((event = EventFileReader.getInstance().next()) != null) {
+        while((event = reader.next()) != null) {
             if(event.getStartDate().getTime() == date.getTime()) {
-                System.out.println("Time: " + event);
                 result.add(event);
             }
         }
 
         return result;
+    }
+
+    public static Event getEventById(String inputFile, int id) {
+
+        EventReader reader = new EventReader(inputFile);
+        Event event;
+        while((event = reader.next()) != null) {
+            if(event.getId() == id)
+                break;
+        }
+
+        return event;
     }
 
 

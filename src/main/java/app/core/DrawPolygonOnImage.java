@@ -2,7 +2,7 @@ package app.core;
 
 import app.models.Coordinate;
 import app.models.Event;
-import app.utils.EventFileReader;
+import app.utils.EventReader;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -18,9 +18,9 @@ public class DrawPolygonOnImage {
 
 
     public void draw(String inputFile, String eventTimeType, String imageFileDirectory, int limit) {
-        EventFileReader.init(inputFile);
+        EventReader eventReader = new EventReader(inputFile);
         for(int i = 0; i < limit; i++) {
-            Event e = EventFileReader.getInstance().next();
+            Event e = eventReader.next();
             drawPolygonOfEvent(e, eventTimeType, imageFileDirectory);
         }
     }

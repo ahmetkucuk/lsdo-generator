@@ -11,7 +11,7 @@ public class Runner {
     public static final String EVENT_SECONDARY_INPUT_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt";
     public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/";
 
-    static String[] localArguments = new String[] {EVENT_INPUT_FILE, FINAL_DATA_IMAGE_OUTPUT, "1000000", "0"};
+    static String[] localArguments = new String[] {EVENT_INPUT_FILE, FINAL_DATA_IMAGE_OUTPUT, "3", "0", "-p"};
 
     public static boolean isLocal = true;
 
@@ -25,9 +25,16 @@ public class Runner {
 
         System.out.println("Start with args: \t" + args[0] + "\t" + args[1] + "\t" + args[2] + "\t" + args[3]);
         long startTime = System.currentTimeMillis();
-        new JP2DownloaderService().downloadImageFromFile(args[0], args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]), 0);
+        new JP2DownloaderService().downloadImageFromFile(args[0], args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]), isParallel(args));
         long endTime = System.currentTimeMillis() - startTime;
         System.out.println("End. Duration: " + (endTime/ (1000 * 60)));
+    }
+
+    public static boolean isParallel(String[] arguments) {
+        if(arguments != null && arguments.length == 5) {
+            if(arguments[4].equalsIgnoreCase("-p")) return true;
+        }
+        return false;
     }
 
     public static boolean isMac(String osName) {

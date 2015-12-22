@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.concurrent.*;
 
 /**
+ * This class is design to find image names of the event
+ * This uses helioviewer api
  * Created by ahmetkucuk on 07/11/15.
  */
 public class URIFinder {
