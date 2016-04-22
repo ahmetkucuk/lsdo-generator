@@ -1,9 +1,13 @@
 package app.core;
 
-import app.models.Event;
-import app.utils.*;
+import app.models.Tuple2;
+import app.utils.Constants;
+import app.utils.FileWriter;
+import app.utils.HttpDownloadUtility;
+import app.utils.Utilities;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by ahmetkucuk on 10/12/15.
@@ -22,11 +26,11 @@ public class JP2Downloader {
     private FileWriter newEventRecords;
     private FileWriter downloadedImageNameFileWriter;
 
-    private String inputFile;
+    private List<Tuple2<Integer, String>> listOfDateWavelengthTuple;
     private String fileLocation;
 
-    public JP2Downloader(String inputFile, String fileLocation) {
-        this.inputFile = inputFile;
+    public JP2Downloader(List<Tuple2<Integer, String>> listToDownload, String fileLocation) {
+        this.listOfDateWavelengthTuple = listToDownload;
         this.fileLocation = fileLocation;
     }
 
@@ -35,23 +39,21 @@ public class JP2Downloader {
      * @param limit how many of images should be downloaded.
      * @param waitBetween wait between two consecutive download in order not to be banned, in seconds
      */
-    public void downloadFromInputFile(int limit, int offset, int waitBetween) {
+    public void downloadFromList(int limit, int offset, int waitBetween) {
 
-        EventReader eventReader = new EventReader(inputFile);
         downloadedImageNames = Utilities.getDownloadedFileNames(fileLocation + IMAGE_FILENAME_FILE);
         initFileWriters(fileLocation);
 
         for(int i = 0; i <= limit + offset; i++) {
 
-            Event e = eventReader.next();
-            if(e == null) break;
+            if(i >= listOfDateWavelengthTuple.size()) break;
+
+            Tuple2 t = listOfDateWavelengthTuple.get(i);
             if(i >= offset) {
                 try {
-                    downloadForEventSetFileName(e, e.getStartDate(), fileLocation, e.getsFileName());
-                    downloadForEventSetFileName(e, e.getMiddleDate(), fileLocation, e.getmFileName());
-                    downloadForEventSetFileName(e, e.getEndDate(), fileLocation, e.geteFileName());
+                    downloadForEventSetFileName(t);
                 } catch (Exception e1) {
-                    errorFileWriter.writeToFile(e + "\n");
+                    errorFileWriter.writeToFile(t.toString() + "\n");
                     errorFileWriter.flush();
                     e1.printStackTrace();
                 }
@@ -70,16 +72,13 @@ public class JP2Downloader {
         }
     }
 
-    public void downloadForEventSetFileName(Event event, Date eventDate, String fileLocation, String imageFileName) throws Exception{
+    public void downloadForEventSetFileName(Tuple2<Integer, String> record) throws Exception{
 
         //event.getStartDate will be changed according to eventTimeType
 
-        String eventTime = Utilities.getStringFromDate(eventDate);
-        String url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
+        String url = String.format(Constants.IMAGE_DOWNLOAD_URL, record.y, record.x);
 
-        String downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
-
-        checkIfFailed(imageFileName, downloadedFileName);
+        String downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(record.y, String.valueOf(record.x)));
 
         downloadedImageNameFileWriter.writeToFile(downloadedFileName + "\n");
         downloadedImageNameFileWriter.flush();

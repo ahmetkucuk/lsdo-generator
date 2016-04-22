@@ -1,7 +1,10 @@
 package app;
 
-import app.service.DrawPolygonService;
+import app.models.Tuple2;
 import app.service.JP2DownloaderService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ahmetkucuk on 27/09/15.
@@ -9,9 +12,7 @@ import app.service.JP2DownloaderService;
 public class Runner {
 
     public static final String EVENT_INPUT_FILE = "/Users/ahmetkucuk/Documents/Research/EVENTS_DATASET/HPC/Final_Data/Primary/primary.txt";
-    public static final String EVENT_SECONDARY_INPUT_FILE = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/events_secondary.txt";
-    public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/";
-    public static final String JPEG_IMAGES_DIRECTORY = "/Users/ahmetkucuk/Documents/Research/DNNProject/Final_Data/images/SDO/jpegs/";
+    public static final String FINAL_DATA_IMAGE_OUTPUT = "/Users/ahmetkucuk/Documents/";
 
     static String[] localArguments = new String[] {EVENT_INPUT_FILE, FINAL_DATA_IMAGE_OUTPUT, "5", "45630", "-p"};
 
@@ -20,8 +21,10 @@ public class Runner {
     public static void main(String[] args) throws Exception {
 
 
-        //drawImages(EVENT_INPUT_FILE, "2014_11_22__07_59_47_34__SDO_AIA_AIA_171", JPEG_IMAGES_DIRECTORY);
+        List<Tuple2<Integer, String>> listToDownload = new ArrayList<>();
 
+        listToDownload.add(new Tuple2<>(171, "2014-01-01T23:59:59Z"));
+        new JP2DownloaderService().downloadImageList(listToDownload, FINAL_DATA_IMAGE_OUTPUT, 10, 0, false);
 
 //        isLocal = isMac(System.getProperty("os.name").toLowerCase());
 //
@@ -32,19 +35,6 @@ public class Runner {
 //        }
     }
 
-
-    public static void downloadImages(String[] args) {
-
-        System.out.println("Start with args: \t" + args[0] + "\t" + args[1] + "\t" + args[2] + "\t" + args[3]);
-        long startTime = System.currentTimeMillis();
-        new JP2DownloaderService().downloadImageFromFile(args[0], args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]), isParallel(args));
-        long endTime = System.currentTimeMillis() - startTime;
-        System.out.println("End. Duration: " + (endTime/ (1000 * 60)));
-    }
-
-    public static void drawImages(String inputFile, String imageFileName, String imageDirectory) {
-        new DrawPolygonService().drawByEventImageName(inputFile, imageFileName, imageDirectory);
-    }
 
     public static boolean isParallel(String[] arguments) {
         if(arguments != null && arguments.length == 5) {

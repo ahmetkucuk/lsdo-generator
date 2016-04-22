@@ -1,17 +1,15 @@
 package app.core;
 
-import app.models.Event;
-import app.utils.*;
+import app.models.Tuple2;
+import app.utils.Constants;
 import app.utils.FileWriter;
-import org.apache.log4j.Logger;
+import app.utils.HttpDownloadUtility;
+import app.utils.Utilities;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -20,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class JP2DownloaderParallel {
 
     public static final String SEPARATOR = "\t";
-
-
 
 
     private static final String IMAGE_FILENAME_FILE = "jp2_files.txt";
@@ -36,14 +32,14 @@ public class JP2DownloaderParallel {
     private FileWriter eventRecords;
     private FileWriter downloadedImageNameFileWriter;
 
-    private String inputFile;
+    private List<Tuple2<Integer, String>> listOfDateWavelengthTuple;
     private String fileLocation;
 
 
 
-    public JP2DownloaderParallel(String inputFile, String fileLocation) {
+    public JP2DownloaderParallel(List<Tuple2<Integer, String>> listToDownload, String fileLocation) {
         executorService = Executors.newFixedThreadPool(THREAD_COUNT);
-        this.inputFile = inputFile;
+        listOfDateWavelengthTuple = listToDownload;
         this.fileLocation = fileLocation;
     }
 
@@ -52,31 +48,23 @@ public class JP2DownloaderParallel {
      * @param limit how many of images should be downloaded.
      * @param waitBetween wait between two consecutive download in order not to be banned, in seconds
      */
-    public void downloadFromInputFile(int limit, int offset, int waitBetween) {
+    public void downloadFromList(int limit, int offset, int waitBetween) {
 
-        EventReader eventReader = new EventReader(inputFile);
         downloadedImageNames = Utilities.getDownloadedFileNames(fileLocation + IMAGE_FILENAME_FILE);
         initFileWriters(fileLocation);
 
-        List<Event> events = new ArrayList<>();
         for(int i = 0; i <= limit + offset; i++) {
 
-            Event e = eventReader.next();
-            if(e == null) break;
-            events.add(e);
+            if(i >= listOfDateWavelengthTuple.size()) break;
+
             if(i >= offset) {
-                executeFor(e, e.getStartDate(), e.getsFileName());
-                executeFor(e, e.getMiddleDate(),e.getmFileName());
-                executeFor(e, e.getEndDate(),e.geteFileName());
+                executeFor(listOfDateWavelengthTuple.get(i));
             }
         }
         System.out.println("Finished Creating Thread");
         try {
             executorService.shutdown();
             executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
-            for(Event e : events) {
-                eventRecords.writeToFile(e.toString() + "\n");
-            }
 
             closeFileWriters();
         } catch (InterruptedException e) {
@@ -85,10 +73,10 @@ public class JP2DownloaderParallel {
         System.out.println("Finished All!");
     }
 
-    private void executeFor(Event e, Date eventDate, String eventImageName) {
+    private void executeFor(Tuple2<Integer, String> e) {
         executorService.execute(() -> {
                     try {
-                        downloadForEvent(e, eventDate, eventImageName);
+                        downloadForEvent(e);
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
@@ -128,23 +116,21 @@ public class JP2DownloaderParallel {
         }
     }
 
-    private void downloadForEvent(Event event, Date eventDate, String eventImageName) {
+    private void downloadForEvent(Tuple2<Integer, String> t) {
 
         //event.getStartDate will be changed according to eventTimeType
 
-        String eventTime = Utilities.getStringFromDate(eventDate);
-        String url = String.format(Constants.IMAGE_DOWNLOAD_URL, eventTime, event.getMeasurement());
+        String url = String.format(Constants.IMAGE_DOWNLOAD_URL, t.y, t.x);
         String downloadedFileName;
 
         try {
-            downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(eventDate, event.getMeasurement()));
-            checkIfFailed(downloadedFileName, eventImageName);
+            downloadedFileName = HttpDownloadUtility.downloadFile(downloadedImageNames, url, fileLocation + Utilities.getImageSubPath(t.y, String.valueOf(t.x)));
             downloadedImageNameFileWriter.writeToFile(downloadedFileName + "\n");
             downloadedImageNameFileWriter.flush();
 
         } catch (Exception e) {
             e.printStackTrace();
-            errorFileWriter.writeToFile(event.toString() + "\n");
+            errorFileWriter.writeToFile(t.toString() + "\n");
             errorFileWriter.flush();
         }
     }

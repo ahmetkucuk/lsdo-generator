@@ -2,11 +2,8 @@ package app.service;
 
 import app.core.JP2Downloader;
 import app.core.JP2DownloaderParallel;
-import app.models.Event;
-import app.utils.EventReader;
-import app.utils.Utilities;
+import app.models.Tuple2;
 
-import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -23,12 +20,12 @@ public class JP2DownloaderService {
      * @param offset
      * @param parallel
      */
-    public void downloadImageFromFile(String inputFile, String outputFileDir, int numberOfItemToDownload, int offset, boolean parallel) {
+    public void downloadImageList(List<Tuple2<Integer, String>> inputList, String outputFileDir, int numberOfItemToDownload, int offset, boolean parallel) {
 
         if(parallel) {
-            new JP2DownloaderParallel(inputFile, outputFileDir).downloadFromInputFile(numberOfItemToDownload, offset, 3);
+            new JP2DownloaderParallel(inputList, outputFileDir).downloadFromList(numberOfItemToDownload, offset, 3);
         } else {
-            new JP2Downloader(inputFile, outputFileDir).downloadFromInputFile(numberOfItemToDownload, offset, 3);
+            new JP2Downloader(inputList, outputFileDir).downloadFromList(numberOfItemToDownload, offset, 3);
         }
 
     }
