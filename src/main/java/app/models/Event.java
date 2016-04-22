@@ -1,9 +1,9 @@
 package app.models;
 
-import app.utils.CoordinateSystemConverter;
 import app.utils.Utilities;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -22,8 +22,10 @@ public class Event {
     private String sFileName;
     private String mFileName;
     private String eFileName;
+    private int regionHeight;
+    private int regionWidth;
 
-    private int id;
+    private String id;
 
     private String measurement;
 
@@ -125,16 +127,20 @@ public class Event {
                 System.err.println("Coordinate String is null");
                 return null;
             }
-            coordinates = Utilities.parseCoordinatesString(coordinateString);
+            Geometry g = Utilities.parseCoordinatesString(coordinateString);
+            if (g != null) {
+                coordinates = g.getCoordinates();
+            }
+
         }
         return coordinates;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -162,9 +168,25 @@ public class Event {
         this.eFileName = eFileName;
     }
 
+    public int getRegionHeight() {
+        return regionHeight;
+    }
+
+    public void setRegionHeight(int regionHeight) {
+        this.regionHeight = regionHeight;
+    }
+
+    public int getRegionWidth() {
+        return regionWidth;
+    }
+
+    public void setRegionWidth(int regionWidth) {
+        this.regionWidth = regionWidth;
+    }
+
     @Override
     public String toString() {
-        String pixelPolygon = Utilities.polygonToString(this);
-        return getId() + "\t" + getEventType().toString() + "\t" + getStartDateString() + "\t" + getEndDateString() + "\t" + measurement + "\t" + pixelPolygon + "\t" + sFileName + "\t" + mFileName + "\t" + eFileName;
+        String pixelPolygon = coordinateString;
+        return (getId() + "\t" + getEventType().toString() + "\t" + getStartDateString() + "\t" + getEndDateString() + "\t" + measurement + "\t" + pixelPolygon + "\t" + sFileName + "\t" + mFileName + "\t" + eFileName).trim();
     }
 }

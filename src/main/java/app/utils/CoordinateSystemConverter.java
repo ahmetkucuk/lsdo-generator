@@ -16,10 +16,8 @@
  */
 package app.utils;
 
-import app.models.Coordinate;
+import com.vividsolutions.jts.geom.Coordinate;
 import org.apache.commons.math3.complex.Complex;
-
-import java.awt.*;
 
 public class CoordinateSystemConverter {
 
@@ -38,8 +36,8 @@ public class CoordinateSystemConverter {
 	 * @return :a new point in Pixel XY coordinates
 	 */
 	public static Coordinate convertHPCToPixXY(Coordinate pointIn) {
-		double PixX = (CoordinateSystemConverter.HPCCENTER + (pointIn.getX() / CoordinateSystemConverter.CDELT));
-		double PixY = (CoordinateSystemConverter.HPCCENTER - (pointIn.getY() / CoordinateSystemConverter.CDELT));
+		double PixX = (CoordinateSystemConverter.HPCCENTER + (pointIn.x / CoordinateSystemConverter.CDELT));
+		double PixY = (CoordinateSystemConverter.HPCCENTER - (pointIn.y / CoordinateSystemConverter.CDELT));
 		return new Coordinate(PixX, PixY);
 	}
 
@@ -52,13 +50,13 @@ public class CoordinateSystemConverter {
 	 * @return :a new point in Pixel XY coordinates
 	 */
 	public static Coordinate convertHGSToPixXY(Coordinate pointIn) {
-		Coordinate pointHCC = CoordinateSystemConverter.convertHG_HCC(pointIn.getX(),
-				pointIn.getY());
-		Coordinate pointHPC = CoordinateSystemConverter.convertHCC_HPC(pointHCC.getX(),
-				pointHCC.getY());
+		Coordinate pointHCC = CoordinateSystemConverter.convertHG_HCC(pointIn.x,
+				pointIn.y);
+		Coordinate pointHPC = CoordinateSystemConverter.convertHCC_HPC(pointHCC.x,
+				pointHCC.y);
 
-		double PixX = (CoordinateSystemConverter.HPCCENTER + (pointHPC.getX() / CoordinateSystemConverter.CDELT));
-		double PixY = (CoordinateSystemConverter.HPCCENTER - (pointHPC.getY() / CoordinateSystemConverter.CDELT));
+		double PixX = (CoordinateSystemConverter.HPCCENTER + (pointHPC.x / CoordinateSystemConverter.CDELT));
+		double PixY = (CoordinateSystemConverter.HPCCENTER - (pointHPC.y / CoordinateSystemConverter.CDELT));
 		return new Coordinate(PixX, PixY);
 	}
 
@@ -70,14 +68,14 @@ public class CoordinateSystemConverter {
 	 * @return :a new point in HGS
 	 */
 	public static Coordinate convertPixXYToHGS(Coordinate pointIn) {
-		double HPCx = (pointIn.getX() - CoordinateSystemConverter.HPCCENTER)
+		double HPCx = (pointIn.x - CoordinateSystemConverter.HPCCENTER)
 				* CoordinateSystemConverter.CDELT;
-		double HPCy = (CoordinateSystemConverter.HPCCENTER - pointIn.getY())
+		double HPCy = (CoordinateSystemConverter.HPCCENTER - pointIn.y)
 				* CoordinateSystemConverter.CDELT;
 
 		Coordinate hccPoint = CoordinateSystemConverter.convertHPC_HCC(HPCx, HPCy);
-        Coordinate hgsPoint = CoordinateSystemConverter.convertHCC_HG(hccPoint.getX(),
-				hccPoint.getX());
+        Coordinate hgsPoint = CoordinateSystemConverter.convertHCC_HG(hccPoint.x,
+				hccPoint.x);
 
 		return hgsPoint;
 	}
@@ -90,9 +88,9 @@ public class CoordinateSystemConverter {
 	 * @return :a new point in HPC
 	 */
 	public static Coordinate convertPixXYToHPC(Coordinate pointIn) {
-		double HPCx = (pointIn.getX() - CoordinateSystemConverter.HPCCENTER)
+		double HPCx = (pointIn.x - CoordinateSystemConverter.HPCCENTER)
 				* CoordinateSystemConverter.CDELT;
-		double HPCy = (CoordinateSystemConverter.HPCCENTER - pointIn.getY())
+		double HPCy = (CoordinateSystemConverter.HPCCENTER - pointIn.y)
 				* CoordinateSystemConverter.CDELT;
 
 		Coordinate ptd = new Coordinate(HPCx, HPCy);

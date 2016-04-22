@@ -1,8 +1,10 @@
 package app.utils;
 
-import app.models.Coordinate;
 import app.models.Event;
 import app.models.EventType;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKTReader;
 
 import java.io.*;
 import java.text.ParseException;
@@ -45,16 +47,19 @@ public class Utilities {
         return f.exists() && !f.isDirectory();
     }
 
-    public static Coordinate[] parseCoordinatesString(String coordinateString) {
-        String[] numbers = coordinateString.split(DELIMETER_COOR);
-        Coordinate[] coordinates = new Coordinate[numbers.length];
+    public static Geometry parseCoordinatesString(String coordinateString) {
 
-        for(int i = 0; i < numbers.length; i++) {
-            String[] coordinate = numbers[i].split(DELIMETER_POINT);
-            coordinates[i] = new Coordinate(Double.parseDouble(coordinate[0]), Double.parseDouble(coordinate[1]));
+        WKTReader reader = new WKTReader();
+
+        try {
+            Geometry g = reader.read(coordinateString);
+            return g;
+
+        } catch (com.vividsolutions.jts.io.ParseException e) {
+            e.printStackTrace();
         }
 
-        return coordinates;
+        return null;
     }
 
     public static Date getDateFromString(String dateString) throws ParseException{
@@ -92,12 +97,26 @@ public class Utilities {
         return result;
     }
 
-    public static Event getEventById(String inputFile, int id) {
+    public static List<Event> getEventsByImageName(String inputFile, String imageName){
+
+        List result = new ArrayList();
+        EventReader reader = new EventReader(inputFile);
+        Event event = null;
+        while((event = reader.next()) != null) {
+            if(event.getsFileName().equalsIgnoreCase(imageName)) {
+                result.add(event);
+            }
+        }
+
+        return result;
+    }
+
+    public static Event getEventById(String inputFile, String id) {
 
         EventReader reader = new EventReader(inputFile);
         Event event;
         while((event = reader.next()) != null) {
-            if(event.getId() == id)
+            if(event.getId().equalsIgnoreCase(id))
                 break;
         }
 
@@ -116,6 +135,13 @@ public class Utilities {
             map.put("CH", EventType.CH.getMeasurement());
             map.put("SG", EventType.SG.getMeasurement());
             map.put("FL", EventType.FL.getMeasurement());
+            map.put("94", 94);
+            map.put("131", 131);
+            map.put("171", 171);
+            map.put("193", 193);
+            map.put("211", 211);
+            map.put("304", 304);
+            map.put("335", 335);
             map.put("AIA 193", 193);
             map.put("131_THIN", 131);
             map.put("94_THIN", 94);
@@ -153,10 +179,25 @@ public class Utilities {
         return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 
+    public static String toFinalString(Event event) throws com.vividsolutions.jts.io.ParseException {
+
+        WKTReader reader = new WKTReader();
+        Coordinate[] g = reader.read(event.getCoordinateString()).getCoordinates();
+
+        Coordinate c1 = g[0];
+        Coordinate c2 = g[1];
+        Coordinate c3 = g[2];
+        Coordinate c4 = g[3];
+        String pixelPolygon = (int)c1.x + " " + (int)c1.y + "," + (int)c2.x + " " + (int)c2.y + "," + (int)c3.x + " " + (int)c3.y + "," + (int)c4.x + " " + (int)c4.y;
+
+
+        return (event.getId().substring(event.getId().lastIndexOf("/")+1) + "\t" + event.getEventType().toString() + "\t" + event.getStartDateString() + "\t" + event.getEndDateString() + "\t" + event.getMeasurement() + "\t" + pixelPolygon + "\t" + event.getsFileName() + "\t" + event.getmFileName() + "\t" + event.geteFileName()).trim();
+    }
+
     public static boolean hasRealMeasurementValue(String measurement) {
         if(isNumeric(measurement)) return true;
 
-        if(map.size() == 0)  {
+        if(mapofPossibleInputs.size() == 0)  {
 
             mapofPossibleInputs.put("AIA 171, AIA 193", 171);
             mapofPossibleInputs.put("AIA 193", 193);

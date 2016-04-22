@@ -37,4 +37,14 @@ public class DrawPolygonService {
         }
 
     }
+
+    public void drawByEventImageName(String inputFile, String imageName, String fileDirectory) {
+
+        List<Event> events = Utilities.getEventsByImageName(inputFile, imageName);
+
+        for(Event e: events) {
+            new DrawPolygonOnImage().drawPolygonByImageName(e, fileDirectory + imageName + ".jpg");
+        }
+
+    }
 }

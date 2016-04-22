@@ -67,7 +67,7 @@ public class EventReader {
 
             String[] columnValues = line.split(SEPARATOR);
             Event e = new Event();
-            e.setId(Integer.parseInt(columnValues[eventIdIndex]));
+            e.setId(columnValues[eventIdIndex]);
 
             e.setStartDateString(columnValues[sdateIndex]);
             e.setStartDate(Utilities.getDateFromString(columnValues[sdateIndex]));

@@ -1,8 +1,8 @@
 package app.core;
 
-import app.models.Coordinate;
 import app.models.Event;
 import app.utils.EventReader;
+import com.vividsolutions.jts.geom.Coordinate;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -26,10 +26,6 @@ public class DrawPolygonOnImage {
     }
 
 
-    /**
-     *
-     *
-     */
     public void drawPolygonOfEvent(Event event, String eventTimeType, String outputFileDirectory) {
 
         String fileName = outputFileDirectory + eventTimeType + "_" + event.getImageFileName() + ".jpg";
@@ -38,7 +34,13 @@ public class DrawPolygonOnImage {
         drawPolygon(fileName, p);
     }
 
-    public void drawPolygon(String fileString, Polygon polygon) {
+    public void drawPolygonByImageName(Event event, String imageFilePath) {
+
+        Polygon p = DrawPolygonOnImage.createPolygon(event.getCoordinates());
+        drawPolygon(imageFilePath, p);
+    }
+
+    protected void drawPolygon(String fileString, Polygon polygon) {
 
         BufferedImage img;
 
@@ -61,24 +63,9 @@ public class DrawPolygonOnImage {
         int[] yCoordinates = new int[coordinates.length];
 
         for(int i = 0; i < coordinates.length; i++) {
-            xCoordinates[i] = (int)coordinates[i].getX();
-            yCoordinates[i] = (int)coordinates[i].getY();
+            xCoordinates[i] = (int)coordinates[i].x;
+            yCoordinates[i] = (int)coordinates[i].y;
         }
-
-        return new Polygon(xCoordinates, yCoordinates, xCoordinates.length);
-    }
-
-    public static Polygon createPolygonAddOneMore(Coordinate[] coordinates) {
-        int[] xCoordinates = new int[coordinates.length + 1];
-        int[] yCoordinates = new int[coordinates.length + 1];
-
-        for(int i = 0; i < coordinates.length - 1; i++) {
-            xCoordinates[i] = (int)coordinates[i].getX();
-            yCoordinates[i] = (int)coordinates[i].getY();
-        }
-
-        xCoordinates[coordinates.length - 1] = (int)coordinates[0].getX();
-        yCoordinates[coordinates.length - 1] = (int)coordinates[0].getY();
 
         return new Polygon(xCoordinates, yCoordinates, xCoordinates.length);
     }
