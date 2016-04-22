@@ -1,9 +1,9 @@
 # jp2-module
 
 
-List of image to be downloaded. Example: 
+List of image to be downloaded. Example:
 
-List<Tuple2<Integer, String>> listToDownload = new ArrayList<>();
+listToDownload = new ArrayList<>();
 
 //Wavelength and date
 
