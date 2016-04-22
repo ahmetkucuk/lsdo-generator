@@ -12,13 +12,13 @@ import java.util.List;
 public class JP2DownloaderService {
 
     /**
-     * Main donwloader function
+     * Main downloader function
      *
-     * @param inputFile
-     * @param outputFileDir
-     * @param numberOfItemToDownload
-     * @param offset
-     * @param parallel
+     * @param inputList List of record to be downloaded
+     * @param outputFileDir where do you want to save your images
+     * @param numberOfItemToDownload how many of the items should be downloaded
+     * @param offset skip that much item from beginning of the list
+     * @param parallel calls parallel version
      */
     public void downloadImageList(List<Tuple2<Integer, String>> inputList, String outputFileDir, int numberOfItemToDownload, int offset, boolean parallel) {
 
