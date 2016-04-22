@@ -2,9 +2,11 @@
 
 
 List of image to be downloaded. Example: 
+
 List<Tuple2<Integer, String>> listToDownload = new ArrayList<>();
 
 //Wavelength and date
+
 listToDownload.add(new Tuple2<>(171, "2014-01-01T23:59:59Z"));
 
 //Call downloader service. Definition of parameters are listed:
