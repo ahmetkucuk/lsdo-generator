@@ -20,9 +20,12 @@ public class QSGenerator {
     Random random = new Random();
     int buffer = 512;
     int imageRadius = 2048;
+    int nOfQSForEachWavelength = 1500;
 
     Map<TInterval, List<Event>> intervalEventListMap = new HashMap<>();
     Map<String, Long> imageListMap = new HashMap<>();
+
+    List<Event> qsEvents = new ArrayList<>();
     public QSGenerator(String inputFile) {
 
         EventReader reader = new EventReader(inputFile);
@@ -47,9 +50,21 @@ public class QSGenerator {
             }
         }
 
+        int count131 = 0;
+        int count171 = 0;
+        int count193 = 0;
+
         for(Map.Entry<String, Long> entry: imageListMap.entrySet()) {
             String image = entry.getKey();
             long imageTime = entry.getValue();
+
+            if(!(image.contains("131") || image.contains("171") || image.contains("193"))) {
+                continue;
+            }
+
+            if(count131 >= nOfQSForEachWavelength && image.contains("131")) continue;
+            if(count171 >= nOfQSForEachWavelength && image.contains("171")) continue;
+            if(count193 >= nOfQSForEachWavelength && image.contains("193")) continue;
 
             int patchSize = random.nextInt(256 - 32) + 32;
             int nOfTrial = 1000;
@@ -59,13 +74,21 @@ public class QSGenerator {
                 if(!checkIfIntersectingWithOtherEvents(geometry, imageTime)) break;
                 nOfTrial--;
             }
-            if (nOfTrial != 0) {
-
+            if (nOfTrial == 0) {
+                System.out.println("Tried a lot but couldn't find!");
+                continue;
             }
-//            System.out.println("Number of trial to find: " + nOfTrial);
-//            System.out.println(geometry);
-            createQSFromGeom(geometry, image);
+
+            Event e = createQSFromGeom(geometry, image);
+            qsEvents.add(e);
+            if(e.getMeasurement().equalsIgnoreCase("131")) count131++;
+            if(e.getMeasurement().equalsIgnoreCase("171")) count171++;
+            if(e.getMeasurement().equalsIgnoreCase("193")) count193++;
         }
+    }
+
+    public List<Event> getQSEvents() {
+        return qsEvents;
     }
 
     public Event createQSFromGeom(Geometry geometry, String imageName) {
@@ -75,11 +98,12 @@ public class QSGenerator {
         e.setsFileName(imageName);
         e.setmFileName(imageName);
         e.seteFileName(imageName);
+        e.setMeasurement(imageName.substring(imageName.lastIndexOf("_") + 1));
+
         e.setId("QS_EVENT_ID");
         e.setStartDateString("N/A");
         e.setEndDateString("N/A");
         e.setFrm("N/A");
-        System.out.println(e.toString());
         return e;
     }
 
@@ -108,7 +132,6 @@ public class QSGenerator {
         rY = rY * radius;
         int x = (int) (rX + imageRadius);
         int y = (int) (rY + imageRadius);
-        System.out.println("x: " + x + " y: " + y);
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate[] coords = new Coordinate[2];
         coords[0] = new Coordinate(x - patchSize/2, y - patchSize/2);

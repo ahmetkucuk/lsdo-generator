@@ -18,6 +18,7 @@ public class CleanFromOverlaps {
 
     static WKTReader wktReader = new WKTReader();
     Map<EventType, List<Event>> cleanEventTypeListMap = new HashMap<>();
+
     public CleanFromOverlaps(String inputFile) {
 
         EventReader reader = new EventReader(inputFile);
@@ -29,13 +30,14 @@ public class CleanFromOverlaps {
                 Geometry polygon = wktReader.read(event.getCoordinateString());
 
                 if(polygon.isValid()) {
-//                    System.out.println(event.toString());
 
-                    String frmString = event.getEventType() + "_" + event.getFrm();
-                    if (frmString.equalsIgnoreCase("AR_SPoCA") ||
-                            frmString.equalsIgnoreCase("SG_Sigmoid Sniffer") ||
-                            frmString.equalsIgnoreCase("FL_Flare Detective - Trigger Module") ||
-                            frmString.equalsIgnoreCase("CH_SPoCA") ) {
+                    if(getRatioOfBbox(polygon) < 0.9) continue;
+
+                    String frmString = event.getMeasurement() + "_" + event.getEventType() + "_" + event.getFrm();
+                    if (frmString.equalsIgnoreCase("171_AR_SPoCA") ||
+                            frmString.equalsIgnoreCase("131_SG_Sigmoid Sniffer") ||
+                            frmString.equalsIgnoreCase("131_FL_Flare Detective - Trigger Module") ||
+                            frmString.equalsIgnoreCase("193_CH_SPoCA") ) {
                         eventTypeListMap.putIfAbsent(event.getEventType(), new ArrayList<>());
                         eventTypeListMap.get(event.getEventType()).add(event);
                     }
@@ -45,10 +47,23 @@ public class CleanFromOverlaps {
                 e.printStackTrace();
             }
         }
+
         for(EventType eventType: eventTypeListMap.keySet()) {
-            cleanEventTypeListMap.put(eventType, eventTypeListMap.get(EventType.AR));
+            cleanEventTypeListMap.put(eventType, removeSTIntersectingEvents(eventTypeListMap.get(eventType)).subList(0, 2000));
         }
-        removeSTIntersectingEvents(eventTypeListMap.get(EventType.AR));
+    }
+
+    public double getRatioOfBbox(Geometry g) {
+        Coordinate[] coordinates = g.getEnvelope().getCoordinates();
+        double x1 = coordinates[0].x;
+        double y1 = coordinates[0].y;
+
+        double x3 = coordinates[2].x;
+        double y3 = coordinates[2].y;
+        double w = (x3 - x1);
+        double h = (y3 - y1);
+        return w > h ? h/w : w/h;
+
     }
 
     public Map<EventType, List<Event>> getCleanEventTypeListMap() {
@@ -57,15 +72,7 @@ public class CleanFromOverlaps {
 
     public List<Event> removeSTIntersectingEvents(List<Event> events) {
 
-        Collections.sort(events, new Comparator<Event>() {
-            @Override
-            public int compare(Event o1, Event o2) {
-                double o1Area = Utilities.parseCoordinatesString(o1.getCoordinateString()).getArea();
-                double o2Area = Utilities.parseCoordinatesString(o2.getCoordinateString()).getArea();
-                if (o1Area == o2Area) return 0;
-                return o1Area < o2Area ? 1 : -1;
-            }
-        });
+        Collections.sort(events, eventAreaComparator);
         List<Event> nonIntersectingEvents = new ArrayList<>();
 
         for(Event e: events) {
@@ -80,6 +87,8 @@ public class CleanFromOverlaps {
                 nonIntersectingEvents.add(e);
             }
         }
+
+        Collections.sort(nonIntersectingEvents, eventAreaComparator);
         return nonIntersectingEvents;
     }
 
@@ -99,19 +108,13 @@ public class CleanFromOverlaps {
 
     }
 
-
-    public String toPixelValues(Geometry p) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("POLYGON((");
-        for(int i = 0; i < p.getCoordinates().length; i++) {
-            Coordinate temp = CoordinateSystemConverter.convertHPCToPixXY(p.getCoordinates()[i]);
-            builder.append((int)temp.x + " ");
-            builder.append((int)temp.y);
-            if(i != p.getCoordinates().length-1)
-                builder.append(", ");
-
+    Comparator<Event> eventAreaComparator =  new Comparator<Event>() {
+        @Override
+        public int compare(Event o1, Event o2) {
+            double o1Area = Utilities.parseCoordinatesString(o1.getCoordinateString()).getArea();
+            double o2Area = Utilities.parseCoordinatesString(o2.getCoordinateString()).getArea();
+            if (o1Area == o2Area) return 0;
+            return o1Area < o2Area ? 1 : -1;
         }
-        builder.append("))");
-        return builder.toString();
-    }
+    };
 }
