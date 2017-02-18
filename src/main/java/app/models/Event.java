@@ -28,6 +28,7 @@ public class Event {
     private String id;
 
     private String measurement;
+    private String frm;
 
     public String getImageFileName() {
         return getEventType().toString() + "_" + getId();
@@ -136,6 +137,10 @@ public class Event {
         return coordinates;
     }
 
+    public Geometry getGeometry() {
+        return Utilities.parseCoordinatesString(coordinateString);
+    }
+
     public String getId() {
         return id;
     }
@@ -187,6 +192,14 @@ public class Event {
     @Override
     public String toString() {
         String pixelPolygon = coordinateString;
-        return (getId() + "\t" + getEventType().toString() + "\t" + getStartDateString() + "\t" + getEndDateString() + "\t" + measurement + "\t" + pixelPolygon + "\t" + sFileName + "\t" + mFileName + "\t" + eFileName).trim();
+        return (getId() + "\t" + getEventType().toString() + "\t" + getStartDateString() + "\t" + getEndDateString() + "\t" + measurement + "\t" + pixelPolygon + "\t" + sFileName + "\t" + mFileName + "\t" + eFileName + "\t" + frm).trim();
+    }
+
+    public String getFrm() {
+        return frm;
+    }
+
+    public void setFrm(String frm) {
+        this.frm = frm;
     }
 }

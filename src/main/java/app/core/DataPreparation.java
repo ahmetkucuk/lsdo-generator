@@ -153,44 +153,6 @@ public class DataPreparation {
         writer.finish();
 
     }
-//
-//    public static void calculateUnnecassary(String inputFile, String inputFile2, String outputFile) throws IOException {
-//        EventReader reader = new EventReader(inputFile);
-//        Event event;
-//
-//        Map<String, String> map = getImageNamePath(inputFile2);
-//        Set<String> fileNames = new HashSet<>();
-//
-//        FileWriter writer = new FileWriter(outputFile);
-//        writer.start();
-//
-//        while((event = reader.next()) != null) {
-//            fileNames.add(event.getsFileName());
-//            fileNames.add(event.getmFileName());
-//            fileNames.add(event.geteFileName());
-//        }
-//
-//        for(String s: map.keySet()) {
-//            if(!fileNames.contains(s)) {
-//                writer.writeToFile("mv /data4/STORE/" + map.get(s) + " /data4/STORE/Residual/\n");
-//                writer.writeToFile("mv /data4/STORE/Parameters/" + (map.get(s)).replace(".jp2", ".txt") + " /data4/STORE/Residual/\n");
-//            }
-//        }
-//        writer.finish();
-//    }
-//
-//    public static Map<String, String> getImageNamePath(String input) throws IOException {
-//        String line;
-//
-//        BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(input)));
-//
-//        Map<String, String> map = new HashMap<>();
-//        while((line = reader.readLine()) != null) {
-//            String imageFileName = line.substring(line.lastIndexOf("/")+1, line.lastIndexOf("."));
-//            map.put(imageFileName, line);
-//        }
-//        return map;
-//    }
 
     public static void extractOneMonthImage(String inputFile, String outputFile) {
         EventReader reader = new EventReader(inputFile);

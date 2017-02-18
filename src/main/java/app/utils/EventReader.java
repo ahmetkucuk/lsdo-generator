@@ -2,6 +2,9 @@ package app.utils;
 
 import app.models.Event;
 import app.models.EventType;
+import com.google.common.base.Strings;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 import java.io.*;
 import java.text.ParseException;
@@ -23,6 +26,7 @@ public class EventReader {
     private int sFileName;
     private int mFileName;
     private int eFileName;
+    private int frmIndex;
 
     private int problematicRecord = 0;
     private int indexOfNextElement = 1;
@@ -49,6 +53,7 @@ public class EventReader {
             sFileName = 6;
             mFileName = 7;
             eFileName = 8;
+            frmIndex = 9;
 
 
 
@@ -80,14 +85,16 @@ public class EventReader {
                 System.out.println("No header value for polygon");
             }
             String polygonString = columnValues[polygonIndex];
-            e.setCoordinateString(polygonString);
+            e.setCoordinateString(fourTupleToPolygonString(polygonString));
             e.setMeasurement(columnValues[channelIdIndex]);
 
             if(columnValues.length > 6) {
-                e.setsFileName(columnValues[sFileName]);
-                e.setmFileName(columnValues[mFileName]);
-                e.seteFileName(columnValues[eFileName]);
+                e.setsFileName(columnValues[sFileName].trim());
+                e.setmFileName(columnValues[mFileName].trim());
+                e.seteFileName(columnValues[eFileName].trim());
             }
+            String frm = columnValues[frmIndex].trim();
+            e.setFrm(frm);
 
             indexOfNextElement++;
 
@@ -100,6 +107,13 @@ public class EventReader {
         }
         return null;
     }
+
+    private String fourTupleToPolygonString(String fourTuple) {
+
+        String[] coordinateTuples = fourTuple.split(",");
+        return "POLYGON((" + String.join(",", coordinateTuples) + "," + coordinateTuples[0] + "))";
+    }
+
 
     private void onDestroy() {
         try {
