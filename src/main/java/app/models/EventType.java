@@ -6,7 +6,7 @@ import app.utils.Constants;
  * Created by ahmetkucuk on 01/10/15.
  */
 public enum EventType {
-    AR, CH, FL, SG;
+    AR, CH, FL, SG, QS;
 
     public static EventType fromString(String s) {
         switch (s) {
@@ -18,6 +18,8 @@ public enum EventType {
                 return FL;
             case "SG":
                 return SG;
+            case "QS":
+                return QS;
         }
         return null;
     }

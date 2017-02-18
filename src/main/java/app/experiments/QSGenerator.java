@@ -19,7 +19,7 @@ public class QSGenerator {
 
     Random random = new Random();
     int buffer = 512;
-    int imageRadius = 2048 - 256;
+    int imageRadius = 2048;
 
     Map<TInterval, List<Event>> intervalEventListMap = new HashMap<>();
     Map<String, Long> imageListMap = new HashMap<>();
@@ -40,8 +40,6 @@ public class QSGenerator {
                     intervalEventListMap.get(new TInterval(event.getStartDate().getTime(), event.getEndDate().getTime())).add(event);
 
                     imageListMap.put(event.getsFileName(), event.getStartDate().getTime());
-                    imageListMap.put(event.getmFileName(), event.getMiddleDate().getTime());
-                    imageListMap.put(event.geteFileName(), event.getEndDate().getTime());
                 }
 
             } catch (com.vividsolutions.jts.io.ParseException e) {
@@ -61,9 +59,28 @@ public class QSGenerator {
                 if(!checkIfIntersectingWithOtherEvents(geometry, imageTime)) break;
                 nOfTrial--;
             }
-            System.out.println("Number of trial to find: " + nOfTrial);
-            System.out.println(geometry);
+            if (nOfTrial != 0) {
+
+            }
+//            System.out.println("Number of trial to find: " + nOfTrial);
+//            System.out.println(geometry);
+            createQSFromGeom(geometry, image);
         }
+    }
+
+    public Event createQSFromGeom(Geometry geometry, String imageName) {
+
+        Event e = new Event();
+        e.setEventType(EventType.QS);
+        e.setsFileName(imageName);
+        e.setmFileName(imageName);
+        e.seteFileName(imageName);
+        e.setId("QS_EVENT_ID");
+        e.setStartDateString("N/A");
+        e.setEndDateString("N/A");
+        e.setFrm("N/A");
+        System.out.println(e.toString());
+        return e;
     }
 
     public boolean checkIfIntersectingWithOtherEvents(Geometry geometry, long imageTime) {
@@ -80,9 +97,17 @@ public class QSGenerator {
     }
 
     public Geometry createRandomGeometry(int patchSize) {
-        double randomDegree = random.nextDouble() * 2;
-        int x = (int) (Math.sqrt(imageRadius - patchSize) * Math.cos(randomDegree));
-        int y = (int) (Math.sqrt(imageRadius - patchSize) * Math.sin(randomDegree));
+        double randomDegree = random.nextDouble() * Math.toRadians(360);
+        double randomRadius = random.nextDouble();
+        //Generate random point in a circle of center (0, 0) radius 1
+        double rX = Math.sqrt(randomRadius) * Math.cos(randomDegree);
+        double rY = Math.sqrt(randomRadius) * Math.sin(randomDegree);
+        //Enlarge Circle to radius of image (some padding applied to original radius)
+        double radius = imageRadius - 256 - patchSize;
+        rX = rX * radius;
+        rY = rY * radius;
+        int x = (int) (rX + imageRadius);
+        int y = (int) (rY + imageRadius);
         System.out.println("x: " + x + " y: " + y);
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate[] coords = new Coordinate[2];
